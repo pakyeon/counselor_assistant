@@ -1,0 +1,5 @@
+{
+  "name": "Counselor Assistant AI",
+  "description": "A dark-themed, medical AI assistant for metabolic syndrome counselors with RAG capabilities, patient management, and chat interface.",
+  "requestFramePermissions": []
+}
