@@ -1,5 +1,4 @@
 
-
 import { Patient, PatientGroup, DocumentSource, CheckupRecord, SurveyRecord } from './types';
 
 export const MOCK_PATIENTS: Patient[] = [
@@ -12,9 +11,9 @@ export const MOCK_PATIENTS: Patient[] = [
     group: PatientGroup.NORMAL,
     registrationDate: '2024-03-01',
     lastVisit: '2025-08-12',
-    cycle: 3,
+    cycle: 12,
     stats: { bloodSugar: '92 mg/dL', bloodPressure: '118/74 mmHg', bmi: '22.2' },
-    notes: ['정상 범위 유지']
+    notes: ['20대 정상 남성']
   },
   {
     id: 'P002',
@@ -27,7 +26,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-08-23',
     cycle: 6,
     stats: { bloodSugar: '82 mg/dL', bloodPressure: '95/62 mmHg', bmi: '17.6' },
-    notes: ['저체중', '근력 운동 필요']
+    notes: ['20대 저체중 여성']
   },
   {
     id: 'P003',
@@ -38,9 +37,9 @@ export const MOCK_PATIENTS: Patient[] = [
     group: PatientGroup.NORMAL,
     registrationDate: '2025-01-15',
     lastVisit: '2025-09-16',
-    cycle: 6,
+    cycle: 12,
     stats: { bloodSugar: '85 mg/dL', bloodPressure: '108/65 mmHg', bmi: '20.5' },
-    notes: []
+    notes: ['20대 이상적 수치 여성']
   },
   {
     id: 'P004',
@@ -53,7 +52,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-08-25',
     cycle: 3,
     stats: { bloodSugar: '105 mg/dL', bloodPressure: '135/88 mmHg', bmi: '29.3' },
-    notes: ['비만', '혈압 관리 필요', '흡연']
+    notes: ['20대 비만', '복합 위험인자']
   },
   {
     id: 'P005',
@@ -66,7 +65,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-08-13',
     cycle: 3,
     stats: { bloodSugar: '118 mg/dL', bloodPressure: '145/92 mmHg', bmi: '32.4' },
-    notes: ['고도비만', '대사증후군', '식습관 교정 시급']
+    notes: ['30대 심각한 대사증후군']
   },
   {
     id: 'P006',
@@ -79,7 +78,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-08-28',
     cycle: 12,
     stats: { bloodSugar: '88 mg/dL', bloodPressure: '115/72 mmHg', bmi: '26.2' },
-    notes: ['운동선수형 과체중']
+    notes: ['30대 운동선수형 남성']
   },
   {
     id: 'P007',
@@ -92,7 +91,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-09-05',
     cycle: 6,
     stats: { bloodSugar: '98 mg/dL', bloodPressure: '125/78 mmHg', bmi: '28.1' },
-    notes: ['과체중', '경계성 수치']
+    notes: ['30대 과체중', '경계치']
   },
   {
     id: 'P008',
@@ -105,7 +104,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-09-12',
     cycle: 6,
     stats: { bloodSugar: '85 mg/dL', bloodPressure: '105/68 mmHg', bmi: '19.4' },
-    notes: ['저체중', '흡연']
+    notes: ['30대 저체중 남성']
   },
   {
     id: 'P009',
@@ -118,7 +117,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-08-16',
     cycle: 6,
     stats: { bloodSugar: '95 mg/dL', bloodPressure: '138/86 mmHg', bmi: '24.6' },
-    notes: ['고지혈증', '흡연']
+    notes: ['40대 고LDL', '경계고혈압']
   },
   {
     id: 'P010',
@@ -131,7 +130,7 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-09-01',
     cycle: 6,
     stats: { bloodSugar: '102 mg/dL', bloodPressure: '140/90 mmHg', bmi: '26.0' },
-    notes: ['갱년기', '고혈압', '고지혈증']
+    notes: ['40대 갱년기', '지질이상']
   },
   {
     id: 'P011',
@@ -144,7 +143,124 @@ export const MOCK_PATIENTS: Patient[] = [
     lastVisit: '2025-09-08',
     cycle: 3,
     stats: { bloodSugar: '125 mg/dL', bloodPressure: '155/98 mmHg', bmi: '28.7' },
-    notes: ['중등도 비만', '고혈압 전단계']
+    notes: ['40대 중등도 비만', '고혈압 전단계']
+  },
+  {
+    id: 'P012',
+    name: '신은정',
+    birthDate: '1981-02-25',
+    age: 44,
+    gender: '여',
+    group: PatientGroup.NORMAL,
+    registrationDate: '2024-11-08',
+    lastVisit: '2025-08-30',
+    cycle: 12,
+    stats: { bloodSugar: '90 mg/dL', bloodPressure: '122/76 mmHg', bmi: '20.7' },
+    notes: ['40대 표준체중', '정상수치']
+  },
+  {
+    id: 'P013',
+    name: '최서연',
+    birthDate: '1973-05-08',
+    age: 52,
+    gender: '여',
+    group: PatientGroup.CAUTION,
+    registrationDate: '2024-02-14',
+    lastVisit: '2025-08-18',
+    cycle: 6,
+    stats: { bloodSugar: '96 mg/dL', bloodPressure: '132/84 mmHg', bmi: '26.6' },
+    notes: ['50대 복부비만', '저HDL']
+  },
+  {
+    id: 'P014',
+    name: '장유준',
+    birthDate: '1970-07-15',
+    age: 55,
+    gender: '남',
+    group: PatientGroup.CAUTION,
+    registrationDate: '2024-08-08',
+    lastVisit: '2025-09-10',
+    cycle: 6,
+    stats: { bloodSugar: '99 mg/dL', bloodPressure: '129/84 mmHg', bmi: '26.0' },
+    notes: ['50대 모든 경계치']
+  },
+  {
+    id: 'P015',
+    name: '홍미선',
+    birthDate: '1969-03-30',
+    age: 56,
+    gender: '여',
+    group: PatientGroup.METABOLIC,
+    registrationDate: '2024-06-18',
+    lastVisit: '2025-09-14',
+    cycle: 3,
+    stats: { bloodSugar: '110 mg/dL', bloodPressure: '148/92 mmHg', bmi: '32.5' },
+    notes: ['50대 고도비만', '고위험군']
+  },
+  {
+    id: 'P016',
+    name: '임성민',
+    birthDate: '1972-04-10',
+    age: 53,
+    gender: '남',
+    group: PatientGroup.NORMAL,
+    registrationDate: '2025-02-20',
+    lastVisit: '2025-08-28',
+    cycle: 12,
+    stats: { bloodSugar: '92 mg/dL', bloodPressure: '125/78 mmHg', bmi: '22.6' },
+    notes: ['50대 정상범위 유지']
+  },
+  {
+    id: 'P017',
+    name: '정지후',
+    birthDate: '1967-02-12',
+    age: 58,
+    gender: '남',
+    group: PatientGroup.METABOLIC,
+    registrationDate: '2024-01-10',
+    lastVisit: '2025-08-20',
+    cycle: 3,
+    stats: { bloodSugar: '135 mg/dL', bloodPressure: '152/95 mmHg', bmi: '27.7' },
+    notes: ['60대 당뇨병 수준', '고혈당']
+  },
+  {
+    id: 'P018',
+    name: '김순자',
+    birthDate: '1963-08-25',
+    age: 62,
+    gender: '여',
+    group: PatientGroup.MEDICATION,
+    registrationDate: '2024-10-05',
+    lastVisit: '2025-09-03',
+    cycle: 6,
+    stats: { bloodSugar: '108 mg/dL', bloodPressure: '145/88 mmHg', bmi: '19.5' },
+    notes: ['60대 저체중', '고혈압', '고콜레스테롤']
+  },
+  {
+    id: 'P019',
+    name: '박철수',
+    birthDate: '1961-05-20',
+    age: 64,
+    gender: '남',
+    group: PatientGroup.METABOLIC,
+    registrationDate: '2024-03-28',
+    lastVisit: '2025-08-26',
+    cycle: 3,
+    stats: { bloodSugar: '148 mg/dL', bloodPressure: '165/105 mmHg', bmi: '32.6' },
+    notes: ['60대 고도비만', '2단계 고혈압', '당뇨병']
+  },
+  {
+    id: 'P020',
+    name: '이영숙',
+    birthDate: '1964-09-07',
+    age: 61,
+    gender: '여',
+    group: PatientGroup.NORMAL,
+    registrationDate: '2024-12-12',
+    lastVisit: '2025-09-18',
+    cycle: 6,
+    stats: { bloodSugar: '95 mg/dL', bloodPressure: '138/85 mmHg', bmi: '23.2' },
+    notes: ['60대 비교적 양호한 수치']
   }
 ];
 
@@ -843,7 +959,7 @@ export const SURVEY_DATA: SurveyRecord[] = [
       "bg_awareness": "UNKNOWN",
     },
     "education": {
-      "received_education": false
+      "received_education": true
     },
     "obesity": {
       "weight_change": "NO_CHANGE",
@@ -1494,7 +1610,7 @@ export const SURVEY_DATA: SurveyRecord[] = [
       "bg_awareness": "NOT_MEASURED",
     },
     "education": {
-      "received_education": false
+      "received_education": true
     },
     "obesity": {
       "weight_change": "INCREASED",
@@ -1780,8 +1896,8 @@ export const SURVEY_DATA: SurveyRecord[] = [
       "received_education": true
     },
     "obesity": {
-      "weight_change": "NO_CHANGE",
-      "weight_change_kg": null,
+      "weight_change": "DECREASED",
+      "weight_change_kg": 2.3,
       "body_shape_perception": "NORMAL",
       "weight_control_effort": "MAINTAIN"
     },
@@ -2098,7 +2214,7 @@ export const SURVEY_DATA: SurveyRecord[] = [
       "bg_awareness": "KNOW",
     },
     "education": {
-      "received_education": false
+      "received_education": true
     },
     "obesity": {
       "weight_change": "INCREASED",
@@ -2198,9 +2314,9 @@ export const SURVEY_DATA: SurveyRecord[] = [
       "received_education": true
     },
     "obesity": {
-      "weight_change": "NO_CHANGE",
-      "weight_change_kg": null,
-      "body_shape_perception": "NORMAL",
+      "weight_change": "DECREASED",
+      "weight_change_kg": 4.6,
+      "body_shape_perception": "OVERWEIGHT",
       "weight_control_effort": "MAINTAIN"
     },
     "smoking": {

@@ -1,5 +1,5 @@
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { MOCK_PATIENTS } from '../constants';
 import { Patient, PatientGroup } from '../types';
@@ -15,9 +15,17 @@ interface SortConfig {
   direction: 'asc' | 'desc';
 }
 
+const ITEMS_PER_PAGE = 10;
+
 const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // Reset to first page when search term changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const getGroupBadgeColor = (group: PatientGroup) => {
     switch (group) {
@@ -52,9 +60,6 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
       sortablePatients.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
-
-        // Determine actual values for comparison to handle complex types if any, though currently all are string/number/enum
-        // For group enum, we might want string comparison
         
         if (aValue < bValue) {
           return sortConfig.direction === 'asc' ? -1 : 1;
@@ -67,6 +72,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
     }
     return sortablePatients;
   }, [searchTerm, sortConfig]);
+
+  // Pagination Logic
+  const totalPages = Math.ceil(sortedPatients.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const paginatedPatients = sortedPatients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+
+  const handlePageChange = (page: number) => {
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
+  };
 
   const columns: { label: string; key: SortKey }[] = [
     { label: '환자 ID', key: 'id' },
@@ -95,10 +111,10 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-panel-dark/50 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm backdrop-blur-sm transition-colors duration-300">
-          <div className="overflow-x-auto">
+        <div className="bg-white dark:bg-panel-dark/50 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm backdrop-blur-sm transition-colors duration-300 flex flex-col">
+          <div className="overflow-x-auto flex-1">
             <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 dark:bg-gray-800/60 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium">
+              <thead className="bg-gray-50 dark:bg-gray-800/60 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium sticky top-0 z-10 backdrop-blur-sm">
                 <tr>
                   {columns.map((col) => (
                     <th 
@@ -121,7 +137,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                {sortedPatients.map((patient) => (
+                {paginatedPatients.map((patient) => (
                   <tr 
                     key={patient.id} 
                     onClick={() => onPatientSelect(patient)}
@@ -140,7 +156,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
                     <td className="px-6 py-4 text-right text-gray-700 dark:text-gray-300 font-mono">{patient.cycle}</td>
                   </tr>
                 ))}
-                {sortedPatients.length === 0 && (
+                {paginatedPatients.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                       검색 결과가 없습니다.
@@ -152,18 +168,37 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
           </div>
         </div>
 
+        {/* Pagination Controls */}
         <div className="flex items-center justify-between pt-6">
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-panel-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm">
+          <button 
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-panel-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <ChevronLeft size={16} /> Previous
           </button>
+          
           <div className="flex items-center gap-2">
-            <button className="w-9 h-9 flex items-center justify-center text-sm font-bold bg-primary text-white rounded-lg shadow-lg shadow-primary/20">1</button>
-            <button className="w-9 h-9 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">2</button>
-            <button className="w-9 h-9 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">3</button>
-            <span className="text-gray-400 dark:text-gray-600 px-2">...</span>
-            <button className="w-9 h-9 flex items-center justify-center text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors">10</button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => handlePageChange(page)}
+                className={`w-9 h-9 flex items-center justify-center text-sm font-medium rounded-lg transition-all ${
+                  currentPage === page
+                    ? 'bg-primary text-white shadow-lg shadow-primary/20 font-bold'
+                    : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 bg-transparent'
+                }`}
+              >
+                {page}
+              </button>
+            ))}
           </div>
-          <button className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-panel-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm">
+
+          <button 
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages || totalPages === 0}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-600 dark:text-gray-400 bg-white dark:bg-panel-dark rounded-lg border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-white transition-all shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             Next <ChevronRight size={16} />
           </button>
         </div>

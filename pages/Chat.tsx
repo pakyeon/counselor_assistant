@@ -929,7 +929,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 1. BP */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               <HeartPulse size={16} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
+                               <HeartPulse size={16} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
                             </span>
                             <div className="flex items-baseline gap-1">
                               <span className={`text-xl font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.sys}</span>
@@ -941,7 +941,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 2. FBG */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               <Droplets size={16} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                               <Droplets size={16} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg}</span>
                           </div>
@@ -949,7 +949,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 3. Waist (Removed BMI) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               <Ruler size={16} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
+                               <Ruler size={16} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.waist, checkup.sex === '남' ? 'waist_m' : 'waist_f') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.waist}</span>
                           </div>
@@ -957,7 +957,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 4. BMI (Dedicated Card) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               <Scale size={16} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
+                               <Scale size={16} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{bmi}</span>
                           </div>
@@ -965,7 +965,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 5. TG (Moved to slot 5) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               <Flame size={16} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                               <Flame size={16} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.tg, 'tg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.tg}</span>
                           </div>
@@ -973,7 +973,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           {/* 6. HDL & LDL (Merged) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
                             <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
-                               HDL / LDL <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                               HDL / LDL <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <div className="flex items-center gap-2">
                               <span className={`text-lg font-bold ${isAbnormal(checkup.hdl, checkup.sex === '남' ? 'hdl_m' : 'hdl_f') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{checkup.hdl}</span>
