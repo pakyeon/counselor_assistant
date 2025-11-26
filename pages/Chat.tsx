@@ -910,100 +910,100 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     const bmi = (checkup.weight / ((checkup.height / 100) ** 2)).toFixed(1);
                     return (
                       <>
-                        {/* 1. Compact Profile */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700">
+                        {/* 1. Compact Profile - Increased Size and Text - Height Increased */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 px-4 py-6 rounded-xl border border-gray-200 dark:border-gray-700">
                           <div className="flex justify-between items-start">
                             <div>
-                              <h3 className="font-bold text-gray-900 dark:text-white text-lg">{selectedPatient.name}</h3>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">{checkup.sex} {checkup.age}세 ({survey.survey.birth_date})</p>
+                              <h3 className="font-bold text-gray-900 dark:text-white text-xl">{selectedPatient.name}</h3>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">{checkup.sex} {checkup.age}세 ({survey.survey.birth_date})</p>
                             </div>
                             <div className="text-right">
-                              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">{selectedPatient.group}</span>
-                              <p className="text-xs text-gray-500 mt-1">최근: {selectedPatient.lastVisit}</p>
+                              <span className="text-xs bg-primary/20 text-primary px-2.5 py-1 rounded-full font-medium">{selectedPatient.group}</span>
+                              <p className="text-xs text-gray-500 mt-1.5">최근: {selectedPatient.lastVisit}</p>
                             </div>
                           </div>
                         </div>
 
-                        {/* 2. Key Vitals Grid - Updated Layout to 2x3 with dedicated BMI card and merged HDL/LDL */}
-                        <div className="grid grid-cols-2 gap-2">
+                        {/* 2. Key Vitals Grid - Updated Layout to 2x3 with dedicated BMI card and merged HDL/LDL - Increased Size and Text - Height Slightly Decreased */}
+                        <div className="grid grid-cols-2 gap-3">
                           {/* 1. BP */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               <HeartPulse size={12} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               <HeartPulse size={16} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
                             </span>
-                            <div className="flex items-baseline gap-0.5">
-                              <span className={`text-base font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.sys}</span>
-                              <span className="text-xs text-gray-500">/</span>
-                              <span className={`text-base font-bold ${isAbnormal(checkup.dia, 'bp_dia') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.dia}</span>
+                            <div className="flex items-baseline gap-1">
+                              <span className={`text-xl font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.sys}</span>
+                              <span className="text-sm text-gray-500">/</span>
+                              <span className={`text-xl font-bold ${isAbnormal(checkup.dia, 'bp_dia') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.dia}</span>
                             </div>
                           </div>
 
                           {/* 2. FBG */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               <Droplets size={12} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               <Droplets size={16} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
-                            <span className={`text-base font-bold ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg}</span>
+                            <span className={`text-xl font-bold ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg}</span>
                           </div>
 
                           {/* 3. Waist (Removed BMI) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               <Ruler size={12} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               <Ruler size={16} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
                             </span>
-                            <span className={`text-base font-bold ${isAbnormal(checkup.waist, checkup.sex === '남' ? 'waist_m' : 'waist_f') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.waist}</span>
+                            <span className={`text-xl font-bold ${isAbnormal(checkup.waist, checkup.sex === '남' ? 'waist_m' : 'waist_f') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.waist}</span>
                           </div>
 
                           {/* 4. BMI (Dedicated Card) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               <Scale size={12} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               <Scale size={16} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
                             </span>
-                            <span className={`text-base font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{bmi}</span>
+                            <span className={`text-xl font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{bmi}</span>
                           </div>
 
                           {/* 5. TG (Moved to slot 5) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               <Flame size={12} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               <Flame size={16} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
-                            <span className={`text-base font-bold ${isAbnormal(checkup.tg, 'tg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.tg}</span>
+                            <span className={`text-xl font-bold ${isAbnormal(checkup.tg, 'tg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.tg}</span>
                           </div>
 
                           {/* 6. HDL & LDL (Merged) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-2 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[60px]">
-                            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-medium mb-0.5 flex items-center gap-1">
-                               HDL / LDL <span className="text-[9px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                               HDL / LDL <span className="text-[10px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <div className="flex items-center gap-2">
-                              <span className={`text-sm font-bold ${isAbnormal(checkup.hdl, checkup.sex === '남' ? 'hdl_m' : 'hdl_f') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{checkup.hdl}</span>
-                              <span className="text-gray-500 dark:text-gray-600">/</span>
-                              <span className={`text-sm font-bold ${isAbnormal(checkup.ldl, 'ldl') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.ldl}</span>
+                              <span className={`text-lg font-bold ${isAbnormal(checkup.hdl, checkup.sex === '남' ? 'hdl_m' : 'hdl_f') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{checkup.hdl}</span>
+                              <span className="text-gray-600">/</span>
+                              <span className={`text-lg font-bold ${isAbnormal(checkup.ldl, 'ldl') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.ldl}</span>
                             </div>
                           </div>
                         </div>
 
-                        {/* 3. Lifestyle Icons */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-around items-center">
+                        {/* 3. Lifestyle Icons - Increased Size and Text */}
+                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-around items-center">
                            <div className="flex flex-col items-center gap-1">
-                              <Cigarette size={16} className={survey.smoking.current_status !== 'NEVER' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-[10px] text-gray-500 dark:text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
+                              <Cigarette size={20} className={survey.smoking.current_status !== 'NEVER' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-600'} />
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
                            </div>
-                           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
+                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
-                              <Wine size={16} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-[10px] text-gray-500 dark:text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
+                              <Wine size={20} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'} />
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
                            </div>
-                           <div className="w-px h-6 bg-gray-200 dark:bg-gray-700"></div>
+                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
-                              <Activity size={16} className={survey.physical_activity.leisure_moderate_days > 0 ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-[10px] text-gray-500 dark:text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
+                              <Activity size={20} className={survey.physical_activity.leisure_moderate_days > 0 ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-600'} />
+                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
                            </div>
                         </div>
 
-                        {/* 4. Medical History & Meds (Tags) */}
+                        {/* 4. Medical History & Meds (Tags) - This naturally shrinks due to flex-1 and increased size of above elements */}
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-                           <p className="text-[10px] text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
+                           <p className="text-xs text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
                            <div className="flex flex-wrap gap-1.5">
                               {survey.diseases.length > 0 ? survey.diseases.map((d, i) => (
                                 <span key={i} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded text-xs border border-gray-300 dark:border-gray-600 flex items-center gap-1">

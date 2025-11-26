@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en" class="dark">
   <head>
@@ -31,22 +32,39 @@
     </script>
     <style>
       body {
+        /* Default to light mode colors if js fails, but handled by tailwind mostly */
+        background-color: #f9fafb; 
+        color: #111827;
+      }
+      .dark body {
         background-color: #121022;
         color: #e5e7eb;
       }
-      /* Custom scrollbar for dark theme */
+
+      /* Custom scrollbar for light theme */
       ::-webkit-scrollbar {
         width: 8px;
         height: 8px;
       }
       ::-webkit-scrollbar-track {
-        background: #121022; 
+        background: #f3f4f6; 
       }
       ::-webkit-scrollbar-thumb {
-        background: #374151; 
+        background: #d1d5db; 
         border-radius: 4px;
       }
       ::-webkit-scrollbar-thumb:hover {
+        background: #9ca3af; 
+      }
+
+      /* Custom scrollbar for dark theme */
+      .dark ::-webkit-scrollbar-track {
+        background: #121022; 
+      }
+      .dark ::-webkit-scrollbar-thumb {
+        background: #374151; 
+      }
+      .dark ::-webkit-scrollbar-thumb:hover {
         background: #4b5563; 
       }
     </style>
