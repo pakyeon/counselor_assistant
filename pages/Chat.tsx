@@ -5,7 +5,8 @@ import {
   ArrowRight, ArrowUp, PanelRightClose, PanelRightOpen,
   ArrowLeft, Search, X, Trash2, PanelLeftClose,
   User, Activity, Calendar, Pill, ClipboardList,
-  ChevronRight, File, Settings, AlertTriangle, Cigarette, Wine, Utensils, Brain, GraduationCap, Scale
+  ChevronRight, File, Settings, AlertTriangle, Cigarette, Wine, Utensils, Brain, GraduationCap, Scale,
+  HeartPulse, Droplets, Ruler, Flame
 } from 'lucide-react';
 import { Patient, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord } from '../types';
 import { MOCK_PATIENTS, MOCK_DOCUMENTS, CHECKUP_DATA, SURVEY_DATA } from '../constants';
@@ -867,70 +868,167 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4 space-y-6">
+          <div className="flex-1 overflow-y-auto p-4">
             {activeTab === 'info' ? (
-              <div className="space-y-6 flex flex-col h-full">
-                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                  <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                    <User size={16} className="text-primary"/> 기본 정보
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">이름</span>
-                      <span className="text-white font-medium">{selectedPatient.name}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">나이/성별</span>
-                      <span className="text-white font-medium">{selectedPatient.age}세 / {selectedPatient.gender}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">최종 방문일</span>
-                      <span className="text-white font-medium">{selectedPatient.lastVisit}</span>
-                    </div>
-                  </div>
-                </div>
+              <div className="space-y-4 flex flex-col h-full">
+                {(() => {
+                  const { checkup, survey } = getPatientDetails(selectedPatient.name);
+                  if (checkup && survey) {
+                    const bmi = (checkup.weight / ((checkup.height / 100) ** 2)).toFixed(1);
+                    return (
+                      <>
+                        {/* 1. Compact Profile */}
+                        <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <h3 className="font-bold text-white text-lg">{selectedPatient.name}</h3>
+                              <p className="text-xs text-gray-400">{checkup.sex} {checkup.age}세 ({survey.survey.birth_date})</p>
+                            </div>
+                            <div className="text-right">
+                              <span className="text-xs bg-primary/20 text-primary px-2 py-0.5 rounded-full font-medium">{selectedPatient.group}</span>
+                              <p className="text-xs text-gray-500 mt-1">최근: {selectedPatient.lastVisit}</p>
+                            </div>
+                          </div>
+                        </div>
 
-                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                  <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                     <Activity size={16} className="text-red-400"/> 주요 지표
-                  </h3>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">공복 혈당</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{selectedPatient.stats.bloodSugar}</span>
-                        <ArrowUp size={14} className="text-red-500" />
+                        {/* 2. Key Vitals Grid */}
+                        <div className="grid grid-cols-2 gap-2">
+                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><HeartPulse size={10}/> BP (mmHg)</span>
+                            <div className="mt-1">
+                              <span className={`text-sm font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-400' : 'text-white'}`}>{checkup.sys}</span>
+                              <span className="text-xs text-gray-500">/</span>
+                              <span className={`text-sm font-bold ${isAbnormal(checkup.dia, 'bp_dia') ? 'text-red-400' : 'text-white'}`}>{checkup.dia}</span>
+                            </div>
+                          </div>
+                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Droplets size={10}/> FBG (mg/dL)</span>
+                            <span className={`text-sm font-bold mt-1 ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-400' : 'text-white'}`}>{checkup.fbg}</span>
+                          </div>
+                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Ruler size={10}/> BMI / Waist</span>
+                            <div className="mt-1">
+                              <span className={`text-sm font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-400' : 'text-white'}`}>{bmi}</span>
+                              <span className="text-xs text-gray-500 mx-1">/</span>
+                              <span className={`text-xs text-gray-300`}>{checkup.waist}cm</span>
+                            </div>
+                          </div>
+                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
+                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Flame size={10}/> LDL / TG</span>
+                            <div className="mt-1">
+                              <span className={`text-sm font-bold ${isAbnormal(checkup.ldl, 'ldl') ? 'text-red-400' : 'text-white'}`}>{checkup.ldl}</span>
+                              <span className="text-xs text-gray-500 mx-1">/</span>
+                              <span className={`text-xs text-gray-300`}>{checkup.tg}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* 3. Lifestyle Icons */}
+                        <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700 flex justify-around items-center">
+                           <div className="flex flex-col items-center gap-1">
+                              <Cigarette size={16} className={survey.smoking.current_status !== 'NEVER' ? 'text-orange-400' : 'text-gray-600'} />
+                              <span className="text-[10px] text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
+                           </div>
+                           <div className="w-px h-6 bg-gray-700"></div>
+                           <div className="flex flex-col items-center gap-1">
+                              <Wine size={16} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-600'} />
+                              <span className="text-[10px] text-gray-400">{survey.alcohol.current_drinker ? (survey.alcohol.frequency || '음주') : '비음주'}</span>
+                           </div>
+                           <div className="w-px h-6 bg-gray-700"></div>
+                           <div className="flex flex-col items-center gap-1">
+                              <Activity size={16} className={survey.physical_activity.leisure_moderate_days > 0 ? 'text-green-400' : 'text-gray-600'} />
+                              <span className="text-[10px] text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
+                           </div>
+                        </div>
+
+                        {/* 4. Medical History & Meds (Tags) */}
+                        <div className="bg-gray-800/50 p-3 rounded-xl border border-gray-700 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                           <p className="text-[10px] text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
+                           <div className="flex flex-wrap gap-1.5">
+                              {survey.diseases.length > 0 ? survey.diseases.map((d, i) => (
+                                <span key={i} className="px-2 py-1 bg-gray-700 text-gray-200 rounded text-xs border border-gray-600 flex items-center gap-1">
+                                  {d.disease_name}
+                                  {d.taking_medication && <Pill size={10} className="text-blue-300" />}
+                                </span>
+                              )) : <span className="text-xs text-gray-500 italic">특이 병력 없음</span>}
+                              
+                              {survey.medication && (
+                                <span className={`px-2 py-1 rounded text-xs border flex items-center gap-1 ${survey.medication.compliant ? 'bg-green-500/10 text-green-400 border-green-500/20' : 'bg-red-500/10 text-red-400 border-red-500/20'}`}>
+                                  약물 순응도: {survey.medication.compliant ? '양호' : '불량'}
+                                </span>
+                              )}
+                           </div>
+                        </div>
+                      </>
+                    );
+                  } 
+                  // Fallback for users not in the detailed dataset (using MOCK_PATIENTS basic data)
+                  return (
+                    <>
+                      <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                          <User size={16} className="text-primary"/> 기본 정보
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">이름</span>
+                            <span className="text-white font-medium">{selectedPatient.name}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">나이/성별</span>
+                            <span className="text-white font-medium">{selectedPatient.age}세 / {selectedPatient.gender}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">최종 방문일</span>
+                            <span className="text-white font-medium">{selectedPatient.lastVisit}</span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-400">혈압</span>
-                      <span className="text-white font-medium">{selectedPatient.stats.bloodPressure}</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-400">BMI</span>
-                      <div className="flex items-center gap-2">
-                        <span className="text-white font-medium">{selectedPatient.stats.bmi}</span>
-                        <ArrowRight size={14} className="text-yellow-500" />
+
+                      <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                           <Activity size={16} className="text-red-400"/> 주요 지표
+                        </h3>
+                        <div className="space-y-3 text-sm">
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400">공복 혈당</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium">{selectedPatient.stats.bloodSugar}</span>
+                              <ArrowUp size={14} className="text-red-500" />
+                            </div>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-gray-400">혈압</span>
+                            <span className="text-white font-medium">{selectedPatient.stats.bloodPressure}</span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="text-gray-400">BMI</span>
+                            <div className="flex items-center gap-2">
+                              <span className="text-white font-medium">{selectedPatient.stats.bmi}</span>
+                              <ArrowRight size={14} className="text-yellow-500" />
+                            </div>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </div>
 
-                <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
-                  <h3 className="font-bold text-white mb-4 flex items-center gap-2">
-                    <ClipboardList size={16} className="text-green-400"/> 특이사항
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {selectedPatient.notes.map((note, idx) => (
-                      <span key={idx} className="bg-gray-700 text-gray-200 text-xs px-2.5 py-1 rounded-full border border-gray-600">
-                        {note}
-                      </span>
-                    ))}
-                    {selectedPatient.notes.length === 0 && <span className="text-gray-500 text-xs">특이사항 없음</span>}
-                  </div>
-                </div>
+                      <div className="bg-gray-800/50 p-4 rounded-xl border border-gray-700">
+                        <h3 className="font-bold text-white mb-4 flex items-center gap-2">
+                          <ClipboardList size={16} className="text-green-400"/> 특이사항
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {selectedPatient.notes.map((note, idx) => (
+                            <span key={idx} className="bg-gray-700 text-gray-200 text-xs px-2.5 py-1 rounded-full border border-gray-600">
+                              {note}
+                            </span>
+                          ))}
+                          {selectedPatient.notes.length === 0 && <span className="text-gray-500 text-xs">특이사항 없음</span>}
+                        </div>
+                      </div>
+                    </>
+                  );
+                })()}
 
-                 <div className="mt-auto pt-4">
+                 <div className="mt-auto pt-2">
                   <button 
                     onClick={() => setViewingPatientDetail(true)}
                     className="w-full bg-gray-700 hover:bg-gray-600 text-white py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-2 border border-gray-600"
