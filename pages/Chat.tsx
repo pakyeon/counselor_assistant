@@ -264,6 +264,28 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     return map[plan] || plan;
   };
 
+  const formatAlcoholFreq = (freq: string | null) => {
+    if (!freq) return '';
+    const map: Record<string, string> = {
+      'LESS_1PM': '월 1회 미만',
+      'ONCE_PM': '월 1회',
+      '2_4PM': '월 2~4회',
+      '2_3PW': '주 2~3회',
+      '4PLUS_PW': '주 4회 이상'
+    };
+    return map[freq] || freq;
+  };
+
+  const formatIncome = (income: string) => {
+    const map: Record<string, string> = {
+      'LESS_2M': '200만원 미만',
+      '2_4M': '200~400만원',
+      '4_6M': '400~600만원',
+      'MORE_6M': '600만원 이상'
+    };
+    return map[income] || income;
+  };
+
   // View: Document Viewer
   if (viewingDoc) {
     return (
@@ -377,7 +399,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                 <div className="flex flex-col items-end">
                   <span className="text-xs text-gray-500">사회경제 (가구/학력/소득)</span>
                   <span className="font-semibold text-white">
-                    {survey.demographics.household_size}인 / {formatEducation(survey.demographics.education_level)} / {survey.demographics.monthly_income}
+                    {survey.demographics.household_size}인 / {formatEducation(survey.demographics.education_level)} / {formatIncome(survey.demographics.monthly_income)}
                   </span>
                </div>
             </div>
@@ -535,7 +557,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                                 </span>
                                 {survey.alcohol.current_drinker && (
                                     <span className="text-xs text-gray-400">
-                                        빈도: {survey.alcohol.frequency}, 1회: {survey.alcohol.amount_per_occasion}잔
+                                        빈도: {formatAlcoholFreq(survey.alcohol.frequency)}, 1회: {survey.alcohol.amount_per_occasion}잔
                                     </span>
                                 )}
                             </div>
@@ -641,9 +663,12 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                                 <span className="text-gray-400">수치 인지(혈압/혈당)</span>
                                 <span className="text-white">{survey.bp_bg_monitoring.bp_awareness} / {survey.bp_bg_monitoring.bg_awareness}</span>
                             </div>
-                            <div className="flex justify-between">
-                                <span className="text-gray-400">교육 이수</span>
-                                <span className={survey.education.received_education ? 'text-blue-400' : 'text-gray-500'}>
+                            <div className="flex justify-between items-start">
+                                <div className="flex flex-col">
+                                    <span className="text-gray-400">만성질환 교육 이수</span>
+                                    <span className="text-[10px] text-gray-500 leading-tight mt-0.5">고혈압·당뇨·이상지질혈증 등</span>
+                                </div>
+                                <span className={`mt-1 ${survey.education.received_education ? 'text-blue-400 font-medium' : 'text-gray-500'}`}>
                                     {survey.education.received_education ? '이수함' : '미이수'}
                                 </span>
                             </div>
@@ -687,9 +712,9 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
   // View: Main Chat
   return (
     <div className="flex h-full w-full overflow-hidden">
-      {/* Left Sidebar - Chat History */}
+      {/* Left Sidebar - Chat History - Increased width to w-80 */}
       <aside 
-        className={`${isLeftPanelOpen ? 'w-64 translate-x-0' : 'w-0 -translate-x-full opacity-0 md:opacity-100 md:w-0'} 
+        className={`${isLeftPanelOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full opacity-0 md:opacity-100 md:w-0'} 
           transition-all duration-300 ease-in-out
           flex flex-col bg-panel-dark border-r border-gray-800 shrink-0 absolute md:relative z-20 h-full shadow-xl md:shadow-none`}
       >
@@ -847,9 +872,9 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
         </div>
       </div>
 
-      {/* Right Sidebar - Info & Docs */}
+      {/* Right Sidebar - Info & Docs - Increased width to w-96 */}
       {isRightPanelOpen && selectedPatient && (
-        <aside className="w-80 bg-panel-dark border-l border-gray-800 flex flex-col shrink-0 transition-all">
+        <aside className="w-96 bg-panel-dark border-l border-gray-800 flex flex-col shrink-0 transition-all">
           <div className="flex items-center border-b border-gray-700">
             <button 
               onClick={() => setActiveTab('info')}
@@ -891,34 +916,61 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
                         </div>
 
-                        {/* 2. Key Vitals Grid */}
+                        {/* 2. Key Vitals Grid - Updated Layout to 2x3 with dedicated BMI card and merged HDL/LDL */}
                         <div className="grid grid-cols-2 gap-2">
-                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><HeartPulse size={10}/> BP (mmHg)</span>
-                            <div className="mt-1">
-                              <span className={`text-sm font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-400' : 'text-white'}`}>{checkup.sys}</span>
+                          {/* 1. BP */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               <HeartPulse size={12} className="text-red-400"/> 혈압 <span className="text-[9px] text-gray-500 scale-90 origin-left">(mmHg)</span>
+                            </span>
+                            <div className="flex items-baseline gap-0.5">
+                              <span className={`text-base font-bold ${isAbnormal(checkup.sys, 'bp_sys') ? 'text-red-400' : 'text-white'}`}>{checkup.sys}</span>
                               <span className="text-xs text-gray-500">/</span>
-                              <span className={`text-sm font-bold ${isAbnormal(checkup.dia, 'bp_dia') ? 'text-red-400' : 'text-white'}`}>{checkup.dia}</span>
+                              <span className={`text-base font-bold ${isAbnormal(checkup.dia, 'bp_dia') ? 'text-red-400' : 'text-white'}`}>{checkup.dia}</span>
                             </div>
                           </div>
-                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Droplets size={10}/> FBG (mg/dL)</span>
-                            <span className={`text-sm font-bold mt-1 ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-400' : 'text-white'}`}>{checkup.fbg}</span>
+
+                          {/* 2. FBG */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               <Droplets size={12} className="text-blue-400"/> 공복혈당 <span className="text-[9px] text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                            </span>
+                            <span className={`text-base font-bold ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-400' : 'text-white'}`}>{checkup.fbg}</span>
                           </div>
-                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Ruler size={10}/> BMI / Waist</span>
-                            <div className="mt-1">
-                              <span className={`text-sm font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-400' : 'text-white'}`}>{bmi}</span>
-                              <span className="text-xs text-gray-500 mx-1">/</span>
-                              <span className={`text-xs text-gray-300`}>{checkup.waist}cm</span>
-                            </div>
+
+                          {/* 3. Waist (Removed BMI) */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               <Ruler size={12} className="text-green-400"/> 허리둘레 <span className="text-[9px] text-gray-500 scale-90 origin-left">(cm)</span>
+                            </span>
+                            <span className={`text-base font-bold ${isAbnormal(checkup.waist, checkup.sex === '남' ? 'waist_m' : 'waist_f') ? 'text-red-400' : 'text-white'}`}>{checkup.waist}</span>
                           </div>
-                          <div className="bg-gray-800/50 p-2.5 rounded-xl border border-gray-700 flex flex-col">
-                            <span className="text-[10px] text-gray-500 font-bold uppercase flex items-center gap-1"><Flame size={10}/> LDL / TG</span>
-                            <div className="mt-1">
+
+                          {/* 4. BMI (Dedicated Card) */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               <Scale size={12} className="text-purple-400"/> BMI <span className="text-[9px] text-gray-500 scale-90 origin-left">(kg/m²)</span>
+                            </span>
+                            <span className={`text-base font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-400' : 'text-white'}`}>{bmi}</span>
+                          </div>
+
+                          {/* 5. TG (Moved to slot 5) */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               <Flame size={12} className="text-orange-400"/> 중성지방 <span className="text-[9px] text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                            </span>
+                            <span className={`text-base font-bold ${isAbnormal(checkup.tg, 'tg') ? 'text-red-400' : 'text-white'}`}>{checkup.tg}</span>
+                          </div>
+
+                          {/* 6. HDL & LDL (Merged) */}
+                          <div className="bg-gray-800/50 p-2 rounded-xl border border-gray-700 flex flex-col justify-center min-h-[60px]">
+                            <span className="text-[10px] text-gray-400 font-medium mb-0.5 flex items-center gap-1">
+                               HDL / LDL <span className="text-[9px] text-gray-500 scale-90 origin-left">(mg/dL)</span>
+                            </span>
+                            <div className="flex items-center gap-2">
+                              <span className={`text-sm font-bold ${isAbnormal(checkup.hdl, checkup.sex === '남' ? 'hdl_m' : 'hdl_f') ? 'text-yellow-400' : 'text-white'}`}>{checkup.hdl}</span>
+                              <span className="text-gray-600">/</span>
                               <span className={`text-sm font-bold ${isAbnormal(checkup.ldl, 'ldl') ? 'text-red-400' : 'text-white'}`}>{checkup.ldl}</span>
-                              <span className="text-xs text-gray-500 mx-1">/</span>
-                              <span className={`text-xs text-gray-300`}>{checkup.tg}</span>
                             </div>
                           </div>
                         </div>
@@ -932,7 +984,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            <div className="w-px h-6 bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
                               <Wine size={16} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-600'} />
-                              <span className="text-[10px] text-gray-400">{survey.alcohol.current_drinker ? (survey.alcohol.frequency || '음주') : '비음주'}</span>
+                              <span className="text-[10px] text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
                            </div>
                            <div className="w-px h-6 bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
