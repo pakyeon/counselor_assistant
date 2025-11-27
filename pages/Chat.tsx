@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Plus, MessageSquare, Menu, FileText, ArrowUpRight, 
@@ -380,7 +381,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     return (
       <div className="flex flex-col h-full bg-gray-50 dark:bg-background-dark overflow-y-auto animate-in fade-in duration-300">
         {/* Fixed Header */}
-        <header className="sticky top-0 z-30 w-full border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
+        <header className="sticky top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
             <div className="flex items-center gap-4">
                <button 
@@ -398,22 +399,22 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
             
             <div className="hidden md:flex items-center gap-6 text-sm text-gray-500 dark:text-gray-300">
                <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">성명 / 성별 / 나이</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">성명 / 성별 / 나이</span>
                   <span className="font-semibold text-gray-900 dark:text-white">{checkup.name} ({survey.survey.sex}) {checkup.age}세</span>
                </div>
-               <div className="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+               <div className="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
                <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">생년월일 / 연락처</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">생년월일 / 연락처</span>
                   <span className="font-semibold text-gray-900 dark:text-white">{survey.survey.birth_date} / {survey.survey.contact}</span>
                </div>
-               <div className="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+               <div className="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
                 <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">검진일자</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">검진일자</span>
                   <span className="font-semibold text-gray-900 dark:text-white">{checkup.exam_at.split(' ')[0]}</span>
                </div>
-               <div className="h-8 w-px bg-gray-200 dark:bg-gray-700"></div>
+               <div className="h-8 w-px bg-gray-200 dark:bg-gray-600"></div>
                 <div className="flex flex-col items-end">
-                  <span className="text-xs text-gray-400 dark:text-gray-500">사회경제 (가구/학력/소득)</span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500">사회경제 (가구/학력/소득)</span>
                   <span className="font-semibold text-gray-900 dark:text-white">
                     {survey.demographics.household_size}인 / {formatEducation(survey.demographics.education_level)} / {formatIncome(survey.demographics.monthly_income)}
                   </span>
@@ -427,8 +428,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
             
             {/* Column 1: Metabolic Metrics */}
             <div className="lg:col-span-1 flex flex-col gap-6">
-               <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
+               <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
                      <Activity size={18} className="text-red-500 dark:text-red-400" />
                      <h3 className="font-bold text-gray-900 dark:text-white">대사증후군 검사 결과</h3>
                   </div>
@@ -438,12 +439,12 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            <tr>
                               <th className="px-6 py-3 font-medium">항목</th>
                               <th className="px-6 py-3 font-medium text-right">측정값</th>
-                              <th className="px-6 py-3 font-medium text-right text-xs">참고치</th>
+                              <th className="px-6 py-3 font-medium text-right text-sm">참고치</th>
                            </tr>
                         </thead>
-                        <tbody className="divide-y divide-gray-200 dark:divide-gray-800 text-gray-700 dark:text-gray-300">
+                        <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-700 dark:text-gray-300">
                            {/* Anthropometry */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-xs font-semibold text-primary">신체 계측</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">신체 계측</td></tr>
                            <tr>
                               <td className="px-6 py-3">신장 / 체중</td>
                               <td className="px-6 py-3 text-right text-gray-900 dark:text-white font-medium">{checkup.height}cm / {checkup.weight}kg</td>
@@ -458,7 +459,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            {/* Obesity Survey Section */}
                            <tr className="bg-gray-50 dark:bg-gray-800/10">
                               <td colSpan={3} className="px-6 py-2 text-xs font-semibold text-gray-500 dark:text-gray-400 flex items-center gap-1">
-                                <Scale size={12} /> 비만 관리 (설문)
+                                <Scale size={12} /> 비만 관리(설문)
                               </td>
                            </tr>
                            <tr className="text-xs bg-gray-50/50 dark:bg-gray-900/20">
@@ -484,7 +485,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* BP */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-xs font-semibold text-primary">혈압</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">혈압</td></tr>
                            <tr>
                               <td className="px-6 py-3">수축기 / 이완기</td>
                               <td className={`px-6 py-3 text-right font-medium`}>
@@ -497,7 +498,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* Blood Sugar */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-xs font-semibold text-primary">혈당</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">혈당</td></tr>
                            <tr>
                               <td className="px-6 py-3">공복혈당</td>
                               <td className={`px-6 py-3 text-right font-medium ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400 font-bold' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg} mg/dL</td>
@@ -505,7 +506,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* Lipids */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-xs font-semibold text-primary">지질</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">지질</td></tr>
                            <tr>
                               <td className="px-6 py-3">총콜레스테롤</td>
                               <td className="px-6 py-3 text-right text-gray-900 dark:text-white font-medium">{checkup.tc} mg/dL</td>
@@ -534,8 +535,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
             {/* Column 2: Lifestyle Survey */}
             <div className="lg:col-span-1 flex flex-col gap-6">
-                <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
+                <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
                      <Utensils size={18} className="text-green-600 dark:text-green-400" />
                      <h3 className="font-bold text-gray-900 dark:text-white">생활습관 설문 요약</h3>
                   </div>
@@ -606,7 +607,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     </div>
 
                     {/* Diet */}
-                    <div className="flex items-start gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+                    <div className="flex items-start gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                         <div className="mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-300"><Utensils size={18} /></div>
                         <div>
                             <p className="text-xs text-gray-500 mb-1 font-bold uppercase">식습관 (Diet)</p>
@@ -635,8 +636,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
             {/* Column 3: History & Mental */}
             <div className="lg:col-span-1 flex flex-col gap-6">
-                <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
-                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
+                <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-600 rounded-xl overflow-hidden shadow-sm dark:shadow-lg h-full">
+                  <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-600 bg-gray-50/80 dark:bg-gray-800/50 flex items-center gap-2">
                      <Brain size={18} className="text-purple-500 dark:text-purple-400" />
                      <h3 className="font-bold text-gray-900 dark:text-white">병력 및 심리 상태</h3>
                   </div>
@@ -648,7 +649,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         {survey.diseases.length > 0 ? (
                             <ul className="space-y-2">
                                 {survey.diseases.map((d, i) => (
-                                    <li key={i} className="flex justify-between items-center text-sm bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-transparent">
+                                    <li key={i} className="flex justify-between items-center text-sm bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-gray-600">
                                         <span className="text-gray-900 dark:text-white font-medium">{d.disease_name}</span>
                                         <div className="flex gap-2">
                                             <span className="text-gray-500 dark:text-gray-400 text-xs">{d.duration_years}년</span>
@@ -692,15 +693,15 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                      </div>
 
                      {/* Mental Health */}
-                     <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+                     <div className="pt-4 border-t border-gray-200 dark:border-gray-600">
                         <div className="flex justify-between items-center mb-2">
-                            <p className="text-xs text-gray-500 font-bold uppercase">정신 건강 (PHQ-9)</p>
+                            <p className="text-sm text-gray-500 font-bold uppercase">정신 건강 (PHQ-9)</p>
                             <span className="text-sm font-bold text-gray-900 dark:text-white">총점: {survey.mental_health.phq9_total_score}점</span>
                         </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">수면시간: 평일 {survey.mental_health.sleep_hours_weekday}h / 주말 {survey.mental_health.sleep_hours_weekend}h</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">수면시간: 평일 {survey.mental_health.sleep_hours_weekday}h / 주말 {survey.mental_health.sleep_hours_weekend}h</p>
                         
-                        <table className="w-full text-xs">
-                            <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
+                        <table className="w-full text-sm">
+                            <tbody className="divide-y divide-gray-200 dark:divide-gray-600">
                                 <tr><td className="py-1 text-gray-500 dark:text-gray-400">우울감/희망없음</td><td className="py-1 text-right text-gray-900 dark:text-white">{survey.mental_health.phq9_q1_depressed}</td></tr>
                                 <tr><td className="py-1 text-gray-500 dark:text-gray-400">흥미/즐거움 저하</td><td className="py-1 text-right text-gray-900 dark:text-white">{survey.mental_health.phq9_q2_no_interest}</td></tr>
                                 <tr><td className="py-1 text-gray-500 dark:text-gray-400">수면 문제</td><td className="py-1 text-right text-gray-900 dark:text-white">{survey.mental_health.phq9_q3_sleep_problem}</td></tr>
@@ -937,7 +938,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         <div className="grid grid-cols-2 gap-3">
                           {/* 1. BP */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <HeartPulse size={16} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
                             </span>
                             <div className="flex items-baseline gap-1">
@@ -949,7 +950,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                           {/* 2. FBG */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Droplets size={16} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg}</span>
@@ -957,7 +958,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                           {/* 3. Waist (Removed BMI) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Ruler size={16} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.waist, checkup.sex === '남' ? 'waist_m' : 'waist_f') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.waist}</span>
@@ -965,7 +966,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                           {/* 4. BMI (Dedicated Card) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Scale size={16} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(parseFloat(bmi), 'bmi') ? 'text-yellow-600 dark:text-yellow-400' : 'text-gray-900 dark:text-white'}`}>{bmi}</span>
@@ -973,7 +974,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                           {/* 5. TG (Moved to slot 5) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Flame size={16} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <span className={`text-xl font-bold ${isAbnormal(checkup.tg, 'tg') ? 'text-red-500 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>{checkup.tg}</span>
@@ -981,7 +982,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                           {/* 6. HDL & LDL (Merged) */}
                           <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
-                            <span className="text-xs text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
+                            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                HDL / LDL <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
                             <div className="flex items-center gap-2">
@@ -996,30 +997,30 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-around items-center">
                            <div className="flex flex-col items-center gap-1">
                               <Cigarette size={20} className={survey.smoking.current_status !== 'NEVER' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
                            </div>
                            <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
                               <Wine size={20} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
                            </div>
                            <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
                            <div className="flex flex-col items-center gap-1">
                               <Activity size={20} className={survey.physical_activity.leisure_moderate_days > 0 ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-600'} />
-                              <span className="text-xs text-gray-500 dark:text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
+                              <span className="text-sm text-gray-500 dark:text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
                            </div>
                         </div>
 
                         {/* 4. Medical History & Meds (Tags) - This naturally shrinks due to flex-1 and increased size of above elements */}
                         <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
-                           <p className="text-xs text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
+                           <p className="text-sm text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
                            <div className="flex flex-wrap gap-1.5">
                               {survey.diseases.length > 0 ? survey.diseases.map((d, i) => (
                                 <span key={i} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded text-xs border border-gray-300 dark:border-gray-600 flex items-center gap-1">
                                   {d.disease_name}
                                   {d.taking_medication && <Pill size={10} className="text-blue-500 dark:text-blue-300" />}
                                 </span>
-                              )) : <span className="text-xs text-gray-500 italic">특이 병력 없음</span>}
+                              )) : <span className="text-sm text-gray-500 italic">특이 병력 없음</span>}
                               
                               {survey.medication && (
                                 <span className={`px-2 py-1 rounded text-xs border flex items-center gap-1 ${survey.medication.compliant ? 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'}`}>
