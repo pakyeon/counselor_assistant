@@ -437,8 +437,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                      <table className="w-full text-sm text-left">
                         <thead className="text-xs text-gray-500 uppercase bg-gray-100/50 dark:bg-gray-800/30">
                            <tr>
-                              <th className="px-6 py-3 font-medium">항목</th>
-                              <th className="px-6 py-3 font-medium text-right">측정값</th>
+                              <th className="px-6 py-3 font-medium text-sm">항목</th>
+                              <th className="px-6 py-3 font-medium text-right text-sm">측정값</th>
                               <th className="px-6 py-3 font-medium text-right text-sm">참고치</th>
                            </tr>
                         </thead>

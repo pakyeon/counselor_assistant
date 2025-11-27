@@ -25,7 +25,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
             </div>
             <h1 className="text-2xl font-bold text-white">Counselor Assistant</h1>
           </div>
-          <p className="text-gray-400">Welcome back! Please login to your account.</p>
+          <p className="text-gray-400">오신 것을 환영합니다! 로그인해 주세요</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -55,9 +55,9 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
           <div className="flex items-center justify-between text-sm">
             <label className="flex items-center text-gray-400 cursor-pointer">
               <input type="checkbox" className="mr-2 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary" />
-              Remember me
+              로그인 정보 저장
             </label>
-            <a href="#" className="text-primary hover:text-primary-hover transition-colors">Forgot Password?</a>
+            <a href="#" className="text-primary hover:text-primary-hover transition-colors">비밀번호를 잊어버리셨나요?</a>
           </div>
 
           <button

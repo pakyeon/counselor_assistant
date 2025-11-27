@@ -98,12 +98,12 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
     <div className="p-8 h-full overflow-y-auto bg-gray-50 dark:bg-background-dark transition-colors duration-300">
       <div className="max-w-7xl mx-auto">
         <div className="flex items-center justify-between mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">Client List</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white">내담자 목록</h2>
           <div className="relative group">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={20} />
             <input 
               type="text" 
-              placeholder="환자 이름이나 ID로 검색하세요."
+              placeholder="내담자 이름이나 ID로 검색하세요."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-80 pl-10 pr-4 py-2.5 bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-700 rounded-lg text-gray-900 dark:text-gray-200 placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all shadow-sm"
@@ -113,14 +113,14 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
 
         <div className="bg-white dark:bg-panel-dark/50 border border-gray-200 dark:border-gray-800 rounded-xl overflow-hidden shadow-sm backdrop-blur-sm transition-colors duration-300 flex flex-col">
           <div className="overflow-x-auto flex-1">
-            <table className="w-full text-sm text-left">
-              <thead className="bg-gray-50 dark:bg-gray-800/60 text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium sticky top-0 z-10 backdrop-blur-sm">
+            <table className="w-full text-base text-left">
+              <thead className="bg-gray-50 dark:bg-gray-800/60 text-sm text-gray-500 dark:text-gray-400 uppercase tracking-wider font-medium sticky top-0 z-10 backdrop-blur-sm">
                 <tr>
                   {columns.map((col) => (
                     <th 
                       key={col.key} 
                       onClick={() => handleSort(col.key)}
-                      className="px-6 py-4 cursor-pointer hover:text-gray-700 dark:hover:text-white transition-colors group select-none"
+                      className="px-6 py-5 cursor-pointer hover:text-gray-700 dark:hover:text-white transition-colors group select-none"
                     >
                       <div className="flex items-center gap-1">
                         {col.label}
@@ -143,17 +143,17 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
                     onClick={() => onPatientSelect(patient)}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors"
                   >
-                    <td className="px-6 py-4 font-medium text-gray-900 dark:text-white">{patient.id}</td>
-                    <td className="px-6 py-4 text-gray-700 dark:text-gray-300">{patient.name}</td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono">{patient.birthDate}</td>
-                    <td className="px-6 py-4">
+                    <td className="px-6 py-5 font-medium text-gray-900 dark:text-white">{patient.id}</td>
+                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300">{patient.name}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.birthDate}</td>
+                    <td className="px-6 py-5">
                       <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getGroupBadgeColor(patient.group)}`}>
                         {patient.group}
                       </span>
                     </td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono">{patient.registrationDate}</td>
-                    <td className="px-6 py-4 text-gray-500 dark:text-gray-400 font-mono">{patient.lastVisit}</td>
-                    <td className="px-6 py-4 text-right text-gray-700 dark:text-gray-300 font-mono">{patient.cycle}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.registrationDate}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.lastVisit}</td>
+                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-mono">{patient.cycle}</td>
                   </tr>
                 ))}
                 {paginatedPatients.length === 0 && (
