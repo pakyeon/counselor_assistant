@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Plus, MessageSquare, Menu, FileText, ArrowUpRight, 
@@ -8,7 +7,7 @@ import {
   ChevronRight, File, Settings, AlertTriangle, Cigarette, Wine, Utensils, Brain, GraduationCap, Scale,
   HeartPulse, Droplets, Ruler, Flame
 } from 'lucide-react';
-import { Patient, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord } from '../types';
+import { Patient, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord, PatientGroup } from '../types';
 import { MOCK_PATIENTS, MOCK_DOCUMENTS, CHECKUP_DATA, SURVEY_DATA } from '../constants';
 import { streamChatResponse } from '../services/geminiService';
 import { getSessions, saveSession, createNewSessionId, deleteSession } from '../services/chatStorage';
@@ -236,6 +235,16 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
       case 'hdl_f': return val < 50;
       case 'ldl': return val >= 130;
       default: return false;
+    }
+  };
+
+  const getGroupBadgeColor = (group: PatientGroup) => {
+    switch (group) {
+      case PatientGroup.METABOLIC: return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/20';
+      case PatientGroup.NORMAL: return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/20';
+      case PatientGroup.CAUTION: return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/20';
+      case PatientGroup.MEDICATION: return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/20';
+      default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/20';
     }
   };
 
@@ -918,7 +927,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                               <p className="text-sm text-gray-500 dark:text-gray-400">{checkup.sex} {checkup.age}세 ({survey.survey.birth_date})</p>
                             </div>
                             <div className="text-right">
-                              <span className="text-xs bg-primary/20 text-primary px-2.5 py-1 rounded-full font-medium">{selectedPatient.group}</span>
+                              <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${getGroupBadgeColor(selectedPatient.group)}`}>{selectedPatient.group}</span>
                               <p className="text-xs text-gray-500 mt-1.5">최근: {selectedPatient.lastVisit}</p>
                             </div>
                           </div>
