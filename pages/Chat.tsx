@@ -201,7 +201,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
               {id}
             </span>
             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
-              <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-700 rounded-lg shadow-xl p-3 text-left">
+              <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl p-3 text-left">
                 <p className="font-bold text-gray-900 dark:text-white text-xs mb-1 truncate">{doc.title}</p>
                 <p className="text-gray-600 dark:text-gray-400 text-xs line-clamp-3">{doc.contentSnippet}</p>
                 <div className="mt-2 text-primary text-xs flex items-center">
@@ -307,7 +307,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
   if (viewingDoc) {
     return (
       <div className="flex flex-col h-full bg-gray-50 dark:bg-background-dark animate-in fade-in duration-300">
-        <header className="w-full border-b border-gray-200 dark:border-gray-700/50 bg-white dark:bg-background-dark">
+        <header className="w-full border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-background-dark">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
             <button 
               onClick={() => setViewingDoc(null)}
@@ -330,11 +330,11 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
         </header>
         <main className="flex-1 w-full flex justify-center py-5 sm:py-10 overflow-y-auto">
           <div className="flex w-full max-w-4xl flex-col px-6">
-            <div className="flex flex-col gap-3 pb-8 border-b border-gray-200 dark:border-gray-700">
+            <div className="flex flex-col gap-3 pb-8 border-b border-gray-200 dark:border-gray-600">
               <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{viewingDoc.title}</h1>
               <p className="text-gray-500 dark:text-gray-400">Medical Guideline Reference • ID: {viewingDoc.id}</p>
             </div>
-            <div className="grid grid-cols-2 gap-x-6 py-6 border-b border-gray-200 dark:border-gray-700">
+            <div className="grid grid-cols-2 gap-x-6 py-6 border-b border-gray-200 dark:border-gray-600">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Source Type</p>
                 <p className="font-medium text-gray-900 dark:text-white uppercase">{viewingDoc.type}</p>
@@ -381,12 +381,12 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     return (
       <div className="flex flex-col h-full bg-gray-50 dark:bg-background-dark overflow-y-auto animate-in fade-in duration-300">
         {/* Fixed Header */}
-        <header className="sticky top-0 z-30 w-full border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
+        <header className="sticky top-0 z-30 w-full border-b border-gray-200 dark:border-gray-600 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-6 py-4">
             <div className="flex items-center gap-4">
                <button 
                 onClick={() => setViewingPatientDetail(false)}
-                className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 gap-2 text-sm font-medium h-9 px-3 transition-colors border border-gray-200 dark:border-gray-700"
+                className="flex cursor-pointer items-center justify-center overflow-hidden rounded-lg bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 gap-2 text-sm font-medium h-9 px-3 transition-colors border border-gray-200 dark:border-gray-600"
               >
                 <ArrowLeft size={16} />
                 <span>닫기</span>
@@ -733,9 +733,9 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
       <aside 
         className={`${isLeftPanelOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full opacity-0 md:opacity-100 md:w-0'} 
           transition-all duration-300 ease-in-out
-          flex flex-col bg-white dark:bg-panel-dark border-r border-gray-200 dark:border-gray-800 shrink-0 absolute md:relative z-20 h-full shadow-xl md:shadow-none`}
+          flex flex-col bg-white dark:bg-panel-dark border-r border-gray-200 dark:border-gray-700 shrink-0 absolute md:relative z-20 h-full shadow-xl md:shadow-none`}
       >
-        <div className="p-4 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between shrink-0">
+        <div className="p-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between shrink-0">
           <button 
             onClick={handleNewChat}
             className="flex-1 flex items-center justify-center gap-2 bg-primary hover:bg-primary-hover text-white text-sm font-medium py-2.5 rounded-lg transition-colors shadow-lg shadow-primary/20"
@@ -749,13 +749,13 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
         
         <div className="flex-1 overflow-y-auto p-3 space-y-4 custom-scrollbar">
           <div>
-            <p className="px-2 mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">Recent Chats</p>
+            <p className="px-2 mb-2 text-sm font-bold text-gray-500 uppercase tracking-wider">최근 채팅</p>
             <div className="space-y-1">
               {sessions.map(session => (
                 <div 
                   key={session.id}
                   onClick={() => loadSession(session)}
-                  className={`group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all border border-transparent ${currentSessionId === session.id ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-700 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'}`}
+                  className={`group flex items-center gap-3 px-3 py-3 rounded-lg cursor-pointer transition-all border border-transparent ${currentSessionId === session.id ? 'bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-white border-gray-200 dark:border-gray-600 shadow-sm' : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50 hover:text-gray-900 dark:hover:text-gray-200'}`}
                 >
                   <MessageSquare size={18} className={`shrink-0 ${currentSessionId === session.id ? 'text-primary' : 'text-gray-400 dark:text-gray-500 group-hover:text-gray-600 dark:group-hover:text-gray-300'}`} />
                   <span className="text-sm truncate flex-1 font-medium">{session.title}</span>
@@ -768,28 +768,28 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                 </div>
               ))}
               {sessions.length === 0 && (
-                <div className="text-center py-8 px-4 text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-800 rounded-xl">
+                <div className="text-center py-8 px-4 text-gray-500 border-2 border-dashed border-gray-200 dark:border-gray-600 rounded-xl">
                   <MessageSquare size={24} className="mx-auto mb-2 opacity-50"/>
-                  <p className="text-xs">No conversation history</p>
+                  <p className="text-sm">대화 내역이 아직 없습니다</p>
                 </div>
               )}
             </div>
           </div>
         </div>
 
-        <div className="p-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-panel-dark shrink-0">
+        <div className="p-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-panel-dark shrink-0">
           <div className="flex flex-col gap-2">
              <button className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all w-full text-left group">
                <div className="bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/20 p-1.5 rounded-lg transition-colors">
                  <User size={20} className="group-hover:text-primary transition-colors"/> 
                </div>
-               <span className="font-semibold text-sm">Patients</span>
+               <span className="font-semibold text-base">내담자 목록</span>
              </button>
              <button className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all w-full text-left group">
                <div className="bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/20 p-1.5 rounded-lg transition-colors">
                  <Settings size={20} className="group-hover:text-primary transition-colors"/> 
                </div>
-               <span className="font-semibold text-sm">Settings</span>
+               <span className="font-semibold text-base">설정</span>
              </button>
           </div>
         </div>
@@ -800,7 +800,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
         {!isLeftPanelOpen && (
            <button 
              onClick={() => setIsLeftPanelOpen(true)}
-             className="absolute top-4 left-4 z-10 p-2 bg-white dark:bg-gray-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200 dark:border-gray-700"
+             className="absolute top-4 left-4 z-10 p-2 bg-white dark:bg-gray-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200 dark:border-gray-600"
            >
              <Menu size={20} />
            </button>
@@ -815,7 +815,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">대화를 시작해주세요</h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-                "{selectedPatient?.name}" 님의 건강 상태나 최근 방문 기록에 대해 물어보세요.
+                "{selectedPatient?.name}" 님의 건강 상태나 <br />최근 방문 기록에 대해 물어보세요.
               </p>
             </div>
           ) : (
@@ -830,7 +830,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                 <div className={`max-w-[80%] rounded-2xl px-5 py-3.5 leading-relaxed shadow-md ${
                   msg.role === 'user' 
                     ? 'bg-primary text-white rounded-br-none' 
-                    : 'bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-700'
+                    : 'bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-600'
                 }`}>
                   {msg.isStreaming && !msg.text ? (
                     <div className="flex gap-1 h-6 items-center">
@@ -857,8 +857,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
         </div>
 
         {/* Input Area */}
-        <div className="p-4 md:p-6 border-t border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
-          <div className="max-w-4xl mx-auto flex items-end gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-2 border border-gray-200 dark:border-gray-700 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+        <div className="p-4 md:p-6 border-t border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
+          <div className="max-w-4xl mx-auto flex items-end gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-2 border border-gray-200 dark:border-gray-600 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
             <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
               <Plus size={20} />
             </button>
@@ -884,7 +884,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
               <Send size={18} />
             </button>
           </div>
-          <p className="text-center text-xs text-gray-500 dark:text-gray-600 mt-2">
+          <p className="text-center text-xs text-gray-500 dark:text-gray-500 mt-2">
             AI는 실수를 할 수 있습니다. 중요한 의학적 결정은 반드시 확인이 필요합니다.
           </p>
         </div>
@@ -892,8 +892,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
       {/* Right Sidebar - Info & Docs - Increased width to w-96 */}
       {isRightPanelOpen && selectedPatient && (
-        <aside className="w-96 bg-white dark:bg-panel-dark border-l border-gray-200 dark:border-gray-800 flex flex-col shrink-0 transition-all">
-          <div className="flex items-center border-b border-gray-200 dark:border-gray-700">
+        <aside className="w-96 bg-white dark:bg-panel-dark border-l border-gray-200 dark:border-gray-700 flex flex-col shrink-0 transition-all">
+          <div className="flex items-center border-b border-gray-200 dark:border-gray-600">
             <button 
               onClick={() => setActiveTab('info')}
               className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'info' ? 'border-primary text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
@@ -921,7 +921,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     return (
                       <>
                         {/* 1. Compact Profile - Increased Size and Text - Height Increased */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 px-4 py-6 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 px-4 py-6 rounded-xl border border-gray-200 dark:border-gray-600">
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="font-bold text-gray-900 dark:text-white text-xl">{selectedPatient.name}</h3>
@@ -937,7 +937,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         {/* 2. Key Vitals Grid - Updated Layout to 2x3 with dedicated BMI card and merged HDL/LDL - Increased Size and Text - Height Slightly Decreased */}
                         <div className="grid grid-cols-2 gap-3">
                           {/* 1. BP */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <HeartPulse size={16} className="text-red-500 dark:text-red-400"/> 혈압 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mmHg)</span>
                             </span>
@@ -949,7 +949,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
 
                           {/* 2. FBG */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Droplets size={16} className="text-blue-500 dark:text-blue-400"/> 공복혈당 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
@@ -957,7 +957,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
 
                           {/* 3. Waist (Removed BMI) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Ruler size={16} className="text-green-500 dark:text-green-400"/> 허리둘레 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(cm)</span>
                             </span>
@@ -965,7 +965,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
 
                           {/* 4. BMI (Dedicated Card) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Scale size={16} className="text-purple-500 dark:text-purple-400"/> BMI <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(kg/m²)</span>
                             </span>
@@ -973,7 +973,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
 
                           {/* 5. TG (Moved to slot 5) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                <Flame size={16} className="text-orange-500 dark:text-orange-400"/> 중성지방 <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
@@ -981,7 +981,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                           </div>
 
                           {/* 6. HDL & LDL (Merged) */}
-                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex flex-col justify-center min-h-[75px]">
+                          <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex flex-col justify-center min-h-[75px]">
                             <span className="text-sm text-gray-500 dark:text-gray-400 font-medium mb-1 flex items-center gap-1.5">
                                HDL / LDL <span className="text-[12px] text-gray-400 dark:text-gray-500 scale-90 origin-left">(mg/dL)</span>
                             </span>
@@ -994,17 +994,17 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         </div>
 
                         {/* 3. Lifestyle Icons - Increased Size and Text */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700 flex justify-around items-center">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600 flex justify-around items-center">
                            <div className="flex flex-col items-center gap-1">
                               <Cigarette size={20} className={survey.smoking.current_status !== 'NEVER' ? 'text-orange-500 dark:text-orange-400' : 'text-gray-400 dark:text-gray-600'} />
                               <span className="text-sm text-gray-500 dark:text-gray-400">{survey.smoking.current_status === 'DAILY' ? '매일' : survey.smoking.current_status === 'NEVER' ? '비흡연' : '과거/가끔'}</span>
                            </div>
-                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
                            <div className="flex flex-col items-center gap-1">
                               <Wine size={20} className={survey.alcohol.current_drinker ? 'text-yellow-500' : 'text-gray-400 dark:text-gray-600'} />
                               <span className="text-sm text-gray-500 dark:text-gray-400">{survey.alcohol.current_drinker ? (formatAlcoholFreq(survey.alcohol.frequency) || '음주') : '비음주'}</span>
                            </div>
-                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-700"></div>
+                           <div className="w-px h-8 bg-gray-200 dark:bg-gray-600"></div>
                            <div className="flex flex-col items-center gap-1">
                               <Activity size={20} className={survey.physical_activity.leisure_moderate_days > 0 ? 'text-green-500 dark:text-green-400' : 'text-gray-400 dark:text-gray-600'} />
                               <span className="text-sm text-gray-500 dark:text-gray-400">{survey.physical_activity.leisure_moderate_days > 0 ? '운동함' : '운동부족'}</span>
@@ -1012,7 +1012,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         </div>
 
                         {/* 4. Medical History & Meds (Tags) - This naturally shrinks due to flex-1 and increased size of above elements */}
-                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-700 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
+                        <div className="bg-gray-50 dark:bg-gray-800/50 p-3 rounded-xl border border-gray-200 dark:border-gray-600 flex-1 min-h-0 overflow-y-auto custom-scrollbar">
                            <p className="text-sm text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
                            <div className="flex flex-wrap gap-1.5">
                               {survey.diseases.length > 0 ? survey.diseases.map((d, i) => (
@@ -1035,7 +1035,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                   // Fallback for users not in the detailed dataset (using MOCK_PATIENTS basic data)
                   return (
                     <>
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                           <User size={16} className="text-primary"/> 기본 정보
                         </h3>
@@ -1055,7 +1055,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         </div>
                       </div>
 
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                            <Activity size={16} className="text-red-500 dark:text-red-400"/> 주요 지표
                         </h3>
@@ -1081,7 +1081,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         </div>
                       </div>
 
-                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-700">
+                      <div className="bg-gray-50 dark:bg-gray-800/50 p-4 rounded-xl border border-gray-200 dark:border-gray-600">
                         <h3 className="font-bold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                           <ClipboardList size={16} className="text-green-500 dark:text-green-400"/> 특이사항
                         </h3>
@@ -1114,7 +1114,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                   <div 
                     key={doc.id} 
                     onClick={() => setViewingDoc(doc)}
-                    className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-700 hover:border-primary cursor-pointer group transition-all"
+                    className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-primary cursor-pointer group transition-all"
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
@@ -1138,8 +1138,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
       {!isRightPanelOpen && (
          <button 
            onClick={() => setIsRightPanelOpen(true)}
-           className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200 dark:border-gray-700"
-         >
+           className="absolute top-4 right-4 z-10 p-2 bg-white dark:bg-gray-800 rounded-lg text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white shadow-lg border border-gray-200 dark:border-gray-600"
+           >
            <PanelRightOpen size={20} />
          </button>
       )}

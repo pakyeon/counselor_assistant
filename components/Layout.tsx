@@ -31,7 +31,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeView, onNavigate, userP
   return (
     <div className="flex flex-col h-screen bg-gray-50 dark:bg-background-dark text-gray-900 dark:text-gray-300 font-sans transition-colors duration-200">
       {/* Header */}
-      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-white/95 dark:bg-background-dark/95 backdrop-blur z-20 transition-colors duration-200">
+      <header className="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-background-dark/95 backdrop-blur z-20 transition-colors duration-200">
         <div className="flex items-center gap-3 cursor-pointer" onClick={() => onNavigate('DASHBOARD')}>
           <div className="w-10 h-10 bg-primary flex items-center justify-center rounded-lg shadow-lg shadow-primary/20">
             <LayoutDashboard className="text-white w-6 h-6" />
