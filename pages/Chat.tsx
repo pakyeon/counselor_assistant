@@ -6,7 +6,7 @@ import {
   ArrowLeft, Search, X, Trash2, PanelLeftClose,
   User, Activity, Calendar, Pill, ClipboardList,
   ChevronRight, File, Settings, AlertTriangle, Cigarette, Wine, Utensils, Brain, GraduationCap, Scale,
-  HeartPulse, Droplets, Ruler, Flame
+  HeartPulse, Droplets, Ruler, Flame, Image as ImageIcon
 } from 'lucide-react';
 import { Patient, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord, PatientGroup } from '../types';
 import { MOCK_PATIENTS, MOCK_DOCUMENTS, CHECKUP_DATA, SURVEY_DATA } from '../constants';
@@ -15,9 +15,10 @@ import { getSessions, saveSession, createNewSessionId, deleteSession } from '../
 
 interface ChatProps {
   initialPatient: Patient | null;
+  onBackToDashboard: () => void;
 }
 
-const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
+const Chat: React.FC<ChatProps> = ({ initialPatient, onBackToDashboard }) => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [selectedPatient, setSelectedPatient] = useState<Patient | null>(initialPatient);
@@ -29,8 +30,13 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   
+  // Image Upload State
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load sessions from storage on mount
   useEffect(() => {
@@ -70,7 +76,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     if (!viewingDoc && !viewingPatientDetail) {
       scrollToBottom();
     }
-  }, [messages, viewingDoc, viewingPatientDetail]);
+  }, [messages, viewingDoc, viewingPatientDetail, previewUrl]);
 
   // Persist current session when messages change
   useEffect(() => {
@@ -98,6 +104,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
   const handleNewChat = () => {
     setMessages([]);
     setCurrentSessionId(null);
+    clearImageSelection();
     if (window.innerWidth < 768) {
       setIsLeftPanelOpen(false);
     }
@@ -111,6 +118,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
       setCurrentSessionId(session.id);
       setViewingPatientDetail(false);
       setViewingDoc(null);
+      clearImageSelection();
       if (window.innerWidth < 768) {
         setIsLeftPanelOpen(false);
       }
@@ -126,8 +134,54 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     }
   };
 
+  // Image Helper Functions
+  const clearImageSelection = () => {
+    setSelectedFile(null);
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl);
+    }
+    setPreviewUrl(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (!file.type.startsWith('image/')) {
+        alert('이미지 파일만 업로드 가능합니다.');
+        return;
+      }
+      setSelectedFile(file);
+      setPreviewUrl(URL.createObjectURL(file));
+    }
+  };
+
+  const triggerFileSelect = () => {
+    fileInputRef.current?.click();
+  };
+
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        if (typeof reader.result === 'string') {
+          // Remove "data:image/jpeg;base64," prefix
+          const base64String = reader.result.split(',')[1];
+          resolve(base64String);
+        } else {
+          reject(new Error("Failed to convert file to base64"));
+        }
+      };
+      reader.onerror = (error) => reject(error);
+    });
+  };
+
   const handleSendMessage = async () => {
-    if (!inputValue.trim() || !selectedPatient) return;
+    // Need either text OR an image to send
+    if ((!inputValue.trim() && !selectedFile) || !selectedPatient) return;
 
     let activeSessionId = currentSessionId;
     if (!activeSessionId) {
@@ -135,14 +189,27 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
       setCurrentSessionId(activeSessionId);
     }
 
+    // Capture current file state before clearing
+    const currentFile = selectedFile;
+    const currentPreviewUrl = previewUrl;
+
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      text: inputValue
+      text: inputValue,
+      attachment: currentPreviewUrl || undefined
     };
 
     setMessages(prev => [...prev, userMsg]);
     setInputValue('');
+    
+    // NOTE: In a real app, you might want to upload the image to storage and use the remote URL for history.
+    // For this mock, we are keeping the local previewUrl in the chat state, but resetting the input state.
+    // We intentionally do NOT revoke the object URL immediately here so it displays in the bubble, 
+    // but in a production app, manage URL lifecycle carefully.
+    setSelectedFile(null); 
+    setPreviewUrl(null); 
+    if (fileInputRef.current) fileInputRef.current.value = '';
 
     const loadingMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, {
@@ -166,10 +233,27 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
     [3] ${MOCK_DOCUMENTS[2].title}: ${MOCK_DOCUMENTS[2].contentSnippet}
     `;
 
+    // Prepare Base64 Image if exists
+    let imagePayload = undefined;
+    if (currentFile) {
+        try {
+            const base64Data = await fileToBase64(currentFile);
+            imagePayload = {
+                inlineData: {
+                    data: base64Data,
+                    mimeType: currentFile.type
+                }
+            };
+        } catch (error) {
+            console.error("Error processing image:", error);
+        }
+    }
+
     const stream = streamChatResponse({
       history: messages.map(m => ({ role: m.role, text: m.text })),
       message: userMsg.text,
-      contextData: contextData
+      contextData: contextData,
+      image: imagePayload
     });
 
     let fullText = '';
@@ -346,7 +430,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
             </div>
             <div className="prose prose-gray dark:prose-invert max-w-none pt-8">
               <p className="text-lg leading-relaxed text-gray-800 dark:text-gray-300">
-                <span className="bg-primary/20 rounded px-1 text-primary dark:text-primary-300">{viewingDoc.contentSnippet}</span>
+                <span className="bg-primary/20 rounded px-1 text-primary dark:text-indigo-400">{viewingDoc.contentSnippet}</span>
               </p>
               <p className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
                 Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
@@ -392,7 +476,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                 <span>닫기</span>
               </button>
               <h1 className="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
-                 <User size={20} className="text-primary" />
+                 <User size={20} className="text-primary dark:text-indigo-400" />
                  내담자 통합 정보 뷰어
               </h1>
             </div>
@@ -444,7 +528,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                         </thead>
                         <tbody className="divide-y divide-gray-200 dark:divide-gray-600 text-gray-700 dark:text-gray-300">
                            {/* Anthropometry */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">신체 계측</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary dark:text-indigo-400">신체 계측</td></tr>
                            <tr>
                               <td className="px-6 py-3">신장 / 체중</td>
                               <td className="px-6 py-3 text-right text-gray-900 dark:text-white font-medium">{checkup.height}cm / {checkup.weight}kg</td>
@@ -485,7 +569,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* BP */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">혈압</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary dark:text-indigo-400">혈압</td></tr>
                            <tr>
                               <td className="px-6 py-3">수축기 / 이완기</td>
                               <td className={`px-6 py-3 text-right font-medium`}>
@@ -498,7 +582,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* Blood Sugar */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">혈당</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary dark:text-indigo-400">혈당</td></tr>
                            <tr>
                               <td className="px-6 py-3">공복혈당</td>
                               <td className={`px-6 py-3 text-right font-medium ${isAbnormal(checkup.fbg, 'fbg') ? 'text-red-500 dark:text-red-400 font-bold' : 'text-gray-900 dark:text-white'}`}>{checkup.fbg} mg/dL</td>
@@ -506,7 +590,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            </tr>
 
                            {/* Lipids */}
-                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary">지질</td></tr>
+                           <tr className="bg-gray-50 dark:bg-gray-800/20"><td colSpan={3} className="px-6 py-2 text-sm font-semibold text-primary dark:text-indigo-400">지질</td></tr>
                            <tr>
                               <td className="px-6 py-3">총콜레스테롤</td>
                               <td className="px-6 py-3 text-right text-gray-900 dark:text-white font-medium">{checkup.tc} mg/dL</td>
@@ -546,17 +630,17 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     <div className="flex items-start gap-4">
                         <div className="mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-300"><Cigarette size={18} /></div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1 font-bold uppercase">흡연 (Smoking)</p>
+                            <p className="text-sm text-gray-500 mb-1 font-bold uppercase">흡연 (Smoking)</p>
                             <div className="flex items-center gap-2 flex-wrap">
                                 <span className="text-gray-900 dark:text-white font-medium">{survey.smoking.current_status}</span>
                                 {survey.smoking.current_status !== 'NEVER' && (
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
                                         ({survey.smoking.daily_amount}개비/일, {survey.smoking.smoking_duration_years}년)
                                     </span>
                                 )}
                             </div>
                             {survey.smoking.quit_plan && (
-                                <p className="text-xs text-blue-600 dark:text-blue-300 mt-1 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded inline-block border border-blue-100 dark:border-transparent">
+                                <p className="text-sm text-blue-600 dark:text-blue-300 mt-1 bg-blue-50 dark:bg-blue-500/10 px-2 py-0.5 rounded inline-block border border-blue-100 dark:border-transparent">
                                     금연 계획: {formatQuitPlan(survey.smoking.quit_plan)}
                                 </p>
                             )}
@@ -567,13 +651,13 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     <div className="flex items-start gap-4">
                         <div className="mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-300"><Wine size={18} /></div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1 font-bold uppercase">음주 (Alcohol)</p>
+                            <p className="text-sm text-gray-500 mb-1 font-bold uppercase">음주 (Alcohol)</p>
                             <div className="flex flex-col">
                                 <span className={`font-medium ${survey.alcohol.current_drinker ? 'text-gray-900 dark:text-white' : 'text-gray-500 dark:text-gray-400'}`}>
                                     {survey.alcohol.current_drinker ? '음주함' : '비음주'}
                                 </span>
                                 {survey.alcohol.current_drinker && (
-                                    <span className="text-xs text-gray-500 dark:text-gray-400">
+                                    <span className="text-sm text-gray-500 dark:text-gray-400">
                                         빈도: {formatAlcoholFreq(survey.alcohol.frequency)}, 1회: {survey.alcohol.amount_per_occasion}잔
                                     </span>
                                 )}
@@ -585,7 +669,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                      <div className="flex items-start gap-4">
                         <div className="mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-300"><Activity size={18} /></div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1 font-bold uppercase">신체활동 (Activity)</p>
+                            <p className="text-sm text-gray-500 mb-1 font-bold uppercase">신체활동 (Activity)</p>
                             <div className="text-sm space-y-1">
                                 <div className="flex justify-between w-full gap-4">
                                     <span className="text-gray-500 dark:text-gray-400">좌식 시간</span>
@@ -610,19 +694,19 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                     <div className="flex items-start gap-4 pt-4 border-t border-gray-200 dark:border-gray-600">
                         <div className="mt-1 bg-gray-100 dark:bg-gray-700 p-2 rounded-lg text-gray-500 dark:text-gray-300"><Utensils size={18} /></div>
                         <div>
-                            <p className="text-xs text-gray-500 mb-1 font-bold uppercase">식습관 (Diet)</p>
+                            <p className="text-sm text-gray-500 mb-1 font-bold uppercase">식습관 (Diet)</p>
                             <div className="flex items-center gap-2 mb-2">
                                 <span className="text-gray-900 dark:text-white font-medium">점수: </span>
-                                <span className="text-primary font-bold">{survey.diet.diet_total_score} / 10</span>
+                                <span className="text-primary dark:text-indigo-400 font-bold">{survey.diet.diet_total_score} / 10</span>
                             </div>
                             <div className="flex flex-wrap gap-1.5">
-                                {survey.diet.diet_q1_whole_grains === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-xs">잡곡 미섭취</span>}
-                                {survey.diet.diet_q2_vegetables === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-xs">채소 부족</span>}
-                                {survey.diet.diet_q5_regular_meals === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded text-xs">불규칙 식사</span>}
-                                {survey.diet.diet_q7_low_salt === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30 rounded text-xs">국물 섭취</span>}
-                                {survey.diet.diet_q9_trim_fat === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-xs">지방 미제거</span>}
-                                {survey.diet.diet_q10_avoid_fried === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded text-xs">튀김 선호</span>}
-                                {survey.diet.diet_q1_whole_grains === 1 && survey.diet.diet_q2_vegetables === 1 && survey.diet.diet_q7_low_salt === 1 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/30 rounded text-xs">양호한 식습관</span>}
+                                {survey.diet.diet_q1_whole_grains === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-sm">잡곡 미섭취</span>}
+                                {survey.diet.diet_q2_vegetables === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-sm">채소 부족</span>}
+                                {survey.diet.diet_q5_regular_meals === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded text-sm">불규칙 식사</span>}
+                                {survey.diet.diet_q7_low_salt === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-orange-600 dark:text-orange-400 border border-orange-200 dark:border-orange-500/30 rounded text-sm">국물 섭취</span>}
+                                {survey.diet.diet_q9_trim_fat === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-yellow-600 dark:text-yellow-500 border border-yellow-200 dark:border-yellow-500/30 rounded text-sm">지방 미제거</span>}
+                                {survey.diet.diet_q10_avoid_fried === 0 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 rounded text-sm">튀김 선호</span>}
+                                {survey.diet.diet_q1_whole_grains === 1 && survey.diet.diet_q2_vegetables === 1 && survey.diet.diet_q7_low_salt === 1 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/30 rounded text-sm">양호한 식습관</span>}
                             </div>
                              {survey.diet.poor_diet_reason && (
                                 <p className="text-xs text-gray-500 mt-2">개선 어려움: {survey.diet.poor_diet_reason}</p>
@@ -645,15 +729,15 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                      
                      {/* History */}
                      <div>
-                        <p className="text-xs text-gray-500 mb-2 font-bold uppercase">질병 이력 (Disease History)</p>
+                        <p className="text-sm text-gray-500 mb-2 font-bold uppercase">질병 이력 (Disease History)</p>
                         {survey.diseases.length > 0 ? (
                             <ul className="space-y-2">
                                 {survey.diseases.map((d, i) => (
                                     <li key={i} className="flex justify-between items-center text-sm bg-gray-50 dark:bg-gray-800/50 p-2 rounded border border-gray-100 dark:border-gray-600">
                                         <span className="text-gray-900 dark:text-white font-medium">{d.disease_name}</span>
                                         <div className="flex gap-2">
-                                            <span className="text-gray-500 dark:text-gray-400 text-xs">{d.duration_years}년</span>
-                                            {d.taking_medication && <span className="text-blue-600 dark:text-blue-400 text-xs bg-blue-50 dark:bg-blue-400/10 px-1 rounded border border-blue-100 dark:border-transparent">복용중</span>}
+                                            <span className="text-gray-500 dark:text-gray-400 text-sm">{d.duration_years}년</span>
+                                            {d.taking_medication && <span className="text-blue-600 dark:text-blue-300 text-xs bg-blue-50 dark:bg-blue-400/10 px-1 rounded border border-blue-100 dark:border-transparent">복용중</span>}
                                         </div>
                                     </li>
                                 ))}
@@ -665,7 +749,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
                      {/* Self Care */}
                      <div>
-                        <p className="text-xs text-gray-500 mb-2 font-bold uppercase">자가 관리 (Self-Care)</p>
+                        <p className="text-sm text-gray-500 mb-2 font-bold uppercase">자가 관리 (Self-Care)</p>
                         <div className="text-sm space-y-2">
                              <div className="flex justify-between">
                                 <span className="text-gray-500 dark:text-gray-400">약물 순응도</span>
@@ -674,7 +758,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                                 </span>
                             </div>
                             {survey.medication?.non_compliance_reason && (
-                                <p className="text-xs text-gray-500 text-right">사유: {survey.medication.non_compliance_reason}</p>
+                                <p className="text-sm text-gray-500 text-right">사유: {survey.medication.non_compliance_reason}</p>
                             )}
                              <div className="flex justify-between">
                                 <span className="text-gray-500 dark:text-gray-400">수치 인지(혈압/혈당)</span>
@@ -685,7 +769,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                                     <span className="text-gray-500 dark:text-gray-400">만성질환 교육 이수</span>
                                     <span className="text-[10px] text-gray-400 dark:text-gray-500 leading-tight mt-0.5">고혈압·당뇨·이상지질혈증 등</span>
                                 </div>
-                                <span className={`mt-1 ${survey.education.received_education ? 'text-blue-600 dark:text-blue-400 font-medium' : 'text-gray-500'}`}>
+                                <span className={`mt-1 ${survey.education.received_education ? 'text-blue-600 dark:text-blue-300 font-medium' : 'text-gray-500'}`}>
                                     {survey.education.received_education ? '이수함' : '미이수'}
                                 </span>
                             </div>
@@ -779,7 +863,10 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
         <div className="p-4 border-t border-gray-200 dark:border-gray-600 bg-white dark:bg-panel-dark shrink-0">
           <div className="flex flex-col gap-2">
-             <button className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all w-full text-left group">
+             <button 
+                onClick={onBackToDashboard}
+                className="flex items-center gap-3 px-4 py-3 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all w-full text-left group"
+             >
                <div className="bg-gray-100 dark:bg-gray-800 group-hover:bg-primary/20 p-1.5 rounded-lg transition-colors">
                  <User size={20} className="group-hover:text-primary transition-colors"/> 
                </div>
@@ -827,22 +914,30 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                   </div>
                 )}
                 
-                <div className={`max-w-[80%] rounded-2xl px-5 py-3.5 leading-relaxed shadow-md ${
-                  msg.role === 'user' 
-                    ? 'bg-primary text-white rounded-br-none' 
-                    : 'bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-600'
-                }`}>
-                  {msg.isStreaming && !msg.text ? (
-                    <div className="flex gap-1 h-6 items-center">
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
-                      <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                <div className={`flex flex-col gap-2 max-w-[80%] ${msg.role === 'user' ? 'items-end' : 'items-start'}`}>
+                  {msg.attachment && (
+                    <div className="mb-1 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-600 max-w-sm">
+                      <img src={msg.attachment} alt="Attachment" className="w-full h-auto object-cover" />
                     </div>
-                  ) : (
-                     <div className="markdown-content">
-                        {renderMessageText(msg.text)}
-                     </div>
                   )}
+
+                  <div className={`rounded-2xl px-5 py-3.5 leading-relaxed shadow-md ${
+                    msg.role === 'user' 
+                      ? 'bg-primary text-white rounded-br-none' 
+                      : 'bg-white dark:bg-gray-800/80 text-gray-800 dark:text-gray-100 rounded-bl-none border border-gray-200 dark:border-gray-600'
+                  }`}>
+                    {msg.isStreaming && !msg.text ? (
+                      <div className="flex gap-1 h-6 items-center">
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                        <div className="w-2 h-2 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                      </div>
+                    ) : (
+                       <div className="markdown-content">
+                          {renderMessageText(msg.text)}
+                       </div>
+                    )}
+                  </div>
                 </div>
 
                 {msg.role === 'user' && (
@@ -858,8 +953,32 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
 
         {/* Input Area */}
         <div className="p-4 md:p-6 border-t border-gray-200 dark:border-gray-700 bg-white/95 dark:bg-background-dark/95 backdrop-blur">
+          {previewUrl && (
+            <div className="max-w-4xl mx-auto mb-3 flex items-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+              <div className="relative bg-gray-100 dark:bg-gray-800 p-2 rounded-xl border border-gray-200 dark:border-gray-600 shadow-sm group">
+                <img src={previewUrl} alt="Preview" className="h-24 w-auto object-cover rounded-lg" />
+                <button 
+                  onClick={clearImageSelection}
+                  className="absolute -top-2 -right-2 bg-white dark:bg-gray-700 text-gray-500 dark:text-gray-300 rounded-full p-1 shadow-md hover:bg-red-50 hover:text-red-500 dark:hover:bg-gray-600 dark:hover:text-red-400 border border-gray-200 dark:border-gray-600 transition-colors"
+                >
+                  <X size={14} />
+                </button>
+              </div>
+            </div>
+          )}
+          
           <div className="max-w-4xl mx-auto flex items-end gap-2 bg-gray-100 dark:bg-gray-800 rounded-xl p-2 border border-gray-200 dark:border-gray-600 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
-            <button className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors">
+            <input 
+              type="file" 
+              ref={fileInputRef}
+              onChange={handleFileSelect}
+              accept="image/png, image/jpeg, image/jpg, image/webp"
+              className="hidden"
+            />
+            <button 
+              onClick={triggerFileSelect}
+              className="p-2 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white hover:bg-gray-200 dark:hover:bg-gray-700 rounded-lg transition-colors"
+            >
               <Plus size={20} />
             </button>
             <textarea
@@ -878,7 +997,7 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
             />
             <button 
               onClick={handleSendMessage}
-              disabled={!inputValue.trim()}
+              disabled={!inputValue.trim() && !selectedFile}
               className="p-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
             >
               <Send size={18} />
@@ -896,13 +1015,13 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
           <div className="flex items-center border-b border-gray-200 dark:border-gray-600">
             <button 
               onClick={() => setActiveTab('info')}
-              className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'info' ? 'border-primary text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+              className={`flex-1 py-3 text-base font-medium border-b-2 transition-colors ${activeTab === 'info' ? 'border-primary text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
             >
               환자 정보
             </button>
             <button 
               onClick={() => setActiveTab('docs')}
-              className={`flex-1 py-3 text-sm font-medium border-b-2 transition-colors ${activeTab === 'docs' ? 'border-primary text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
+              className={`flex-1 py-3 text-base font-medium border-b-2 transition-colors ${activeTab === 'docs' ? 'border-primary text-gray-900 dark:text-white' : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200'}`}
             >
               참고문서
             </button>
@@ -928,8 +1047,8 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                               <p className="text-sm text-gray-500 dark:text-gray-400">{checkup.sex} {checkup.age}세 ({survey.survey.birth_date})</p>
                             </div>
                             <div className="text-right">
-                              <span className={`text-xs px-2.5 py-1 rounded-full font-medium border ${getGroupBadgeColor(selectedPatient.group)}`}>{selectedPatient.group}</span>
-                              <p className="text-xs text-gray-500 mt-1.5">최근: {selectedPatient.lastVisit}</p>
+                              <span className={`text-sm px-2.5 py-1 rounded-full font-medium border ${getGroupBadgeColor(selectedPatient.group)}`}>{selectedPatient.group}</span>
+                              <p className="text-sm text-gray-500 mt-1.5">최근: {selectedPatient.lastVisit}</p>
                             </div>
                           </div>
                         </div>
@@ -1016,14 +1135,14 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                            <p className="text-sm text-gray-500 font-bold uppercase mb-2">병력 및 투약</p>
                            <div className="flex flex-wrap gap-1.5">
                               {survey.diseases.length > 0 ? survey.diseases.map((d, i) => (
-                                <span key={i} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded text-xs border border-gray-300 dark:border-gray-600 flex items-center gap-1">
+                                <span key={i} className="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded text-sm border border-gray-300 dark:border-gray-600 flex items-center gap-1">
                                   {d.disease_name}
                                   {d.taking_medication && <Pill size={10} className="text-blue-500 dark:text-blue-300" />}
                                 </span>
                               )) : <span className="text-sm text-gray-500 italic">특이 병력 없음</span>}
                               
                               {survey.medication && (
-                                <span className={`px-2 py-1 rounded text-xs border flex items-center gap-1 ${survey.medication.compliant ? 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'}`}>
+                                <span className={`px-2 py-1 rounded text-sm border flex items-center gap-1 ${survey.medication.compliant ? 'bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 border-green-200 dark:border-green-500/20' : 'bg-red-50 dark:bg-red-500/10 text-red-600 dark:text-red-400 border-red-200 dark:border-red-500/20'}`}>
                                   약물 순응도: {survey.medication.compliant ? '양호' : '불량'}
                                 </span>
                               )}
@@ -1118,14 +1237,14 @@ const Chat: React.FC<ChatProps> = ({ initialPatient }) => {
                   >
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                         <div className="bg-primary/20 p-1.5 rounded text-primary">
+                         <div className="bg-primary/20 p-1.5 rounded text-primary dark:text-indigo-400">
                             <FileText size={16} />
                          </div>
                          <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded">ID: {idx + 1}</span>
                       </div>
-                      <ArrowUpRight size={14} className="text-gray-400 group-hover:text-primary opacity-0 group-hover:opacity-100 transition-all" />
+                      <ArrowUpRight size={14} className="text-gray-400 group-hover:text-primary dark:group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" />
                     </div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1 group-hover:text-primary transition-colors line-clamp-1">{doc.title}</h4>
+                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{doc.title}</h4>
                     <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{doc.contentSnippet}</p>
                   </div>
                 ))}

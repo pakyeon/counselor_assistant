@@ -30,6 +30,7 @@ export interface ChatMessage {
   text: string;
   citations?: Citation[];
   isStreaming?: boolean;
+  attachment?: string; // URL or Base64 for display
 }
 
 export interface ChatSession {

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import Layout from './components/Layout';
 import Login from './pages/Login';
@@ -36,7 +37,10 @@ function App() {
         <Dashboard onPatientSelect={handlePatientSelect} />
       )}
       {currentView === AppView.CHAT && (
-        <Chat initialPatient={selectedPatient} />
+        <Chat 
+          initialPatient={selectedPatient} 
+          onBackToDashboard={() => handleNavigate(AppView.DASHBOARD)}
+        />
       )}
     </Layout>
   );

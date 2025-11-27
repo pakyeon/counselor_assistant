@@ -1,4 +1,5 @@
-import { GoogleGenAI } from "@google/genai";
+
+import { GoogleGenAI, Part } from "@google/genai";
 import { SYSTEM_INSTRUCTION } from '../constants';
 
 // Initialize the API client
@@ -8,6 +9,12 @@ export interface ChatRequest {
   history: { role: 'user' | 'model'; text: string }[];
   message: string;
   contextData?: string;
+  image?: {
+    inlineData: {
+      data: string;
+      mimeType: string;
+    }
+  };
 }
 
 export const streamChatResponse = async function* (request: ChatRequest) {
@@ -35,8 +42,15 @@ export const streamChatResponse = async function* (request: ChatRequest) {
       }))
     });
 
+    // Construct the message payload (Multimodal support)
+    const messageParts: Part[] = [{ text: contextPrompt }];
+    
+    if (request.image) {
+      messageParts.push(request.image);
+    }
+
     const result = await chat.sendMessageStream({
-      message: contextPrompt
+      message: messageParts
     });
 
     for await (const chunk of result) {

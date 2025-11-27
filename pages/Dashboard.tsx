@@ -147,7 +147,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
                     <td className="px-6 py-5 text-gray-700 dark:text-gray-300">{patient.name}</td>
                     <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.birthDate}</td>
                     <td className="px-6 py-5">
-                      <span className={`px-2.5 py-1 text-xs font-semibold rounded-full border ${getGroupBadgeColor(patient.group)}`}>
+                      <span className={`px-2.5 py-1 text-sm font-semibold rounded-full border ${getGroupBadgeColor(patient.group)}`}>
                         {patient.group}
                       </span>
                     </td>

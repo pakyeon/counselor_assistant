@@ -57,7 +57,7 @@ const Login: React.FC<LoginProps> = ({ onLogin }) => {
               <input type="checkbox" className="mr-2 rounded border-gray-600 bg-gray-700 text-primary focus:ring-primary" />
               로그인 정보 저장
             </label>
-            <a href="#" className="text-primary hover:text-primary-hover transition-colors">비밀번호를 잊어버리셨나요?</a>
+            <a href="#" className="text-primary hover:text-primary-hover dark:text-indigo-400 dark:hover:text-indigo-300 transition-colors">비밀번호를 잊어버리셨나요?</a>
           </div>
 
           <button
