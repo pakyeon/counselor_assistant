@@ -1,14 +1,14 @@
 
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, ArrowUp, ArrowDown } from 'lucide-react';
-import { MOCK_PATIENTS } from '../constants';
-import { Patient, PatientGroup } from '../types';
+import { Search, ChevronLeft, ChevronRight, ChevronsUpDown, ArrowUp, ArrowDown, Loader2 } from 'lucide-react';
+import { fetchDashboardClients } from '../services/dataService';
+import { Client, ClientGroup } from '../types';
 
 interface DashboardProps {
-  onPatientSelect: (patient: Patient) => void;
+  onClientSelect: (client: Client) => void;
 }
 
-type SortKey = keyof Patient;
+type SortKey = keyof Client;
 
 interface SortConfig {
   key: SortKey;
@@ -17,22 +17,39 @@ interface SortConfig {
 
 const ITEMS_PER_PAGE = 10;
 
-const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
+const Dashboard: React.FC<DashboardProps> = ({ onClientSelect }) => {
+  const [clients, setClients] = useState<Client[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState<SortConfig | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
+
+  useEffect(() => {
+    const loadData = async () => {
+      setLoading(true);
+      try {
+        const data = await fetchDashboardClients();
+        setClients(data);
+      } catch (error) {
+        console.error("Failed to load clients", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
 
   // Reset to first page when search term changes
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm]);
 
-  const getGroupBadgeColor = (group: PatientGroup) => {
+  const getGroupBadgeColor = (group: ClientGroup) => {
     switch (group) {
-      case PatientGroup.METABOLIC: return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/20';
-      case PatientGroup.NORMAL: return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/20';
-      case PatientGroup.CAUTION: return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/20';
-      case PatientGroup.MEDICATION: return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/20';
+      case ClientGroup.METABOLIC: return 'bg-red-100 text-red-700 border-red-200 dark:bg-red-500/20 dark:text-red-400 dark:border-red-500/20';
+      case ClientGroup.NORMAL: return 'bg-green-100 text-green-700 border-green-200 dark:bg-green-500/20 dark:text-green-400 dark:border-green-500/20';
+      case ClientGroup.CAUTION: return 'bg-yellow-100 text-yellow-700 border-yellow-200 dark:bg-yellow-500/20 dark:text-yellow-400 dark:border-yellow-500/20';
+      case ClientGroup.MEDICATION: return 'bg-orange-100 text-orange-700 border-orange-200 dark:bg-orange-500/20 dark:text-orange-400 dark:border-orange-500/20';
       default: return 'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-500/20 dark:text-gray-400 dark:border-gray-500/20';
     }
   };
@@ -45,19 +62,19 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
     setSortConfig({ key, direction });
   };
 
-  const sortedPatients = useMemo(() => {
-    let sortablePatients = [...MOCK_PATIENTS];
+  const sortedClients = useMemo(() => {
+    let sortableClients = [...clients];
     
     // Filter first
     if (searchTerm) {
-      sortablePatients = sortablePatients.filter(p => 
+      sortableClients = sortableClients.filter(p => 
         p.name.includes(searchTerm) || p.id.includes(searchTerm)
       );
     }
 
     // Then sort
     if (sortConfig !== null) {
-      sortablePatients.sort((a, b) => {
+      sortableClients.sort((a, b) => {
         const aValue = a[sortConfig.key];
         const bValue = b[sortConfig.key];
         
@@ -70,13 +87,13 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
         return 0;
       });
     }
-    return sortablePatients;
-  }, [searchTerm, sortConfig]);
+    return sortableClients;
+  }, [searchTerm, sortConfig, clients]);
 
   // Pagination Logic
-  const totalPages = Math.ceil(sortedPatients.length / ITEMS_PER_PAGE);
+  const totalPages = Math.ceil(sortedClients.length / ITEMS_PER_PAGE);
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const paginatedPatients = sortedPatients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  const paginatedClients = sortedClients.slice(startIndex, startIndex + ITEMS_PER_PAGE);
 
   const handlePageChange = (page: number) => {
     if (page >= 1 && page <= totalPages) {
@@ -85,14 +102,23 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
   };
 
   const columns: { label: string; key: SortKey }[] = [
-    { label: '환자 ID', key: 'id' },
+    { label: '내담자 ID', key: 'id' },
     { label: '성명', key: 'name' },
     { label: '생년월일', key: 'birthDate' },
     { label: '그룹군', key: 'group' },
     { label: '등록일', key: 'registrationDate' },
-    { label: '최종 방문일', key: 'lastVisit' },
+    { label: '최근 방문일', key: 'lastVisit' },
     { label: '주기', key: 'cycle' },
   ];
+
+  if (loading) {
+    return (
+      <div className="h-full flex flex-col items-center justify-center">
+        <Loader2 className="w-8 h-8 text-primary animate-spin mb-4" />
+        <p className="text-gray-500 dark:text-gray-400">내담자 목록을 불러오는 중입니다...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="p-8 h-full overflow-y-auto bg-gray-50 dark:bg-background-dark transition-colors duration-300">
@@ -137,26 +163,26 @@ const Dashboard: React.FC<DashboardProps> = ({ onPatientSelect }) => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200 dark:divide-gray-800">
-                {paginatedPatients.map((patient) => (
+                {paginatedClients.map((client) => (
                   <tr 
-                    key={patient.id} 
-                    onClick={() => onPatientSelect(patient)}
+                    key={client.id} 
+                    onClick={() => onClientSelect(client)}
                     className="hover:bg-gray-50 dark:hover:bg-gray-800/40 cursor-pointer transition-colors"
                   >
-                    <td className="px-6 py-5 font-medium text-gray-900 dark:text-white">{patient.id}</td>
-                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300">{patient.name}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.birthDate}</td>
+                    <td className="px-6 py-5 font-medium text-gray-900 dark:text-white">{client.id}</td>
+                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300">{client.name}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{client.birthDate}</td>
                     <td className="px-6 py-5">
-                      <span className={`px-2.5 py-1 text-sm font-semibold rounded-full border ${getGroupBadgeColor(patient.group)}`}>
-                        {patient.group}
+                      <span className={`px-2.5 py-1 text-sm font-semibold rounded-full border ${getGroupBadgeColor(client.group)}`}>
+                        {client.group}
                       </span>
                     </td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.registrationDate}</td>
-                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{patient.lastVisit}</td>
-                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-mono">{patient.cycle}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{client.registrationDate}</td>
+                    <td className="px-6 py-5 text-gray-500 dark:text-gray-400 font-mono">{client.lastVisit}</td>
+                    <td className="px-6 py-5 text-gray-700 dark:text-gray-300 font-mono">{client.cycle}</td>
                   </tr>
                 ))}
-                {paginatedPatients.length === 0 && (
+                {paginatedClients.length === 0 && (
                   <tr>
                     <td colSpan={7} className="px-6 py-8 text-center text-gray-500 dark:text-gray-400">
                       검색 결과가 없습니다.

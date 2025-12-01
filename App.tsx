@@ -4,11 +4,11 @@ import Layout from './components/Layout';
 import Login from './pages/Login';
 import Dashboard from './pages/Dashboard';
 import Chat from './pages/Chat';
-import { AppView, Patient } from './types';
+import { AppView, Client } from './types';
 
 function App() {
   const [currentView, setCurrentView] = useState<AppView>(AppView.LOGIN);
-  const [selectedPatient, setSelectedPatient] = useState<Patient | null>(null);
+  const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
   const handleLogin = () => {
     setCurrentView(AppView.DASHBOARD);
@@ -18,8 +18,8 @@ function App() {
     setCurrentView(view);
   };
 
-  const handlePatientSelect = (patient: Patient) => {
-    setSelectedPatient(patient);
+  const handleClientSelect = (client: Client) => {
+    setSelectedClient(client);
     setCurrentView(AppView.CHAT);
   };
 
@@ -34,11 +34,11 @@ function App() {
       userProfile={{ name: "Dr. Kim", avatar: "https://i.pravatar.cc/150?img=11" }}
     >
       {currentView === AppView.DASHBOARD && (
-        <Dashboard onPatientSelect={handlePatientSelect} />
+        <Dashboard onClientSelect={handleClientSelect} />
       )}
       {currentView === AppView.CHAT && (
         <Chat 
-          initialPatient={selectedPatient} 
+          initialClient={selectedClient} 
           onBackToDashboard={() => handleNavigate(AppView.DASHBOARD)}
         />
       )}

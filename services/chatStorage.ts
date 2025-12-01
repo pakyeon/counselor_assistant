@@ -1,3 +1,4 @@
+
 import { ChatSession, ChatMessage } from '../types';
 
 const STORAGE_KEY = 'counselor_chat_history';
