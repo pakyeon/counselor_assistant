@@ -440,19 +440,6 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
     return `주 ${days}일, 하루 ${hours > 0 ? `${hours}시간` : ''} ${mins > 0 ? `${mins}분` : ''}`;
   };
 
-  const getFacilityTypes = (m: any) => {
-      // Prioritize the raw text input "visit_facility_other" which contains specific names like "Mapo-gu Health Center"
-      if (m.visit_facility_other && m.visit_facility_other.trim().length > 0) {
-          return m.visit_facility_other;
-      }
-      
-      const types = [];
-      if (m.visit_facility_health_center) types.push('보건소');
-      if (m.visit_facility_clinic) types.push('의원');
-      if (m.visit_facility_hospital) types.push('병원');
-      return types.length > 0 ? types.join(', ') : '기록 없음';
-  };
-  
   const getMonitoringCount = (type: 'bp' | 'bg', monitor: any) => {
       const p = type === 'bp' ? 'bp' : 'bg';
       const w = monitor[`${p}_times_per_week`];
@@ -916,15 +903,13 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                                 <p className="text-sm text-gray-500 text-right">사유: {survey.medication.non_compliance_reason}</p>
                             )}
                             
-                            {/* Added Facility Type Info */}
-                            {survey.medication && (
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 dark:text-gray-400 text-xs">이용 의료기관</span>
-                                    <span className="text-gray-700 dark:text-gray-300 text-xs flex items-center gap-1">
-                                        <Building2 size={10} /> {getFacilityTypes(survey.medication)}
-                                    </span>
-                                </div>
-                            )}
+                            {/* Added Facility Type Info - Now using checkup.facility */}
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-500 dark:text-gray-400 text-xs">이용 의료기관</span>
+                                <span className="text-gray-700 dark:text-gray-300 text-xs flex items-center gap-1">
+                                    <Building2 size={10} /> {checkup.facility || '기록 없음'}
+                                </span>
+                            </div>
                              
                              {/* Added Monitoring Frequency */}
                              <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
@@ -1242,7 +1227,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                           <div className="flex justify-between items-start">
                             <div>
                               <h3 className="font-bold text-gray-900 dark:text-white text-xl">{selectedClient.name}</h3>
-                              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedClient.gender} {selectedClient.age}세 ({survey.survey.survey_at?.split('T')[0]})</p>
+                              <p className="text-sm text-gray-500 dark:text-gray-400">{selectedClient.gender} {selectedClient.age}세 ({selectedClient.birthDate})</p>
                             </div>
                             <div className="text-right">
                               <span className={`text-sm px-2.5 py-1 rounded-full font-medium border ${getGroupBadgeColor(selectedClient.group)}`}>{selectedClient.group}</span>
