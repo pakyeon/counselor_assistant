@@ -358,7 +358,14 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
 
   const formatExercisePlan = (plan: string | null | undefined) => {
     if (!plan) return '';
-    const map: Record<string, string> = { 'MORE_6M': '6개월 이상 유지', 'LESS_6M': '6개월 미만', 'NO_PLAN': '계획 없음', 'OCCASIONAL': '불규칙적', 'FUTURE': '향후 계획' };
+    const map: Record<string, string> = { 
+        'MORE_6M': '6개월 이상 유지', 
+        'LESS_6M': '6개월 미만', 
+        'NO_PLAN': '계획 없음', 
+        'OCCASIONAL': '불규칙적', 
+        'FUTURE': '향후 계획',
+        'ONGOING': '지속 실천 중'
+    };
     return map[plan] || plan;
   };
 
@@ -390,12 +397,31 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   };
   
   const formatEducation = (level: string) => {
-      const map: Record<string, string> = { 'ELEMENTARY': '초졸 이하', 'MIDDLE': '중졸', 'HIGH': '고졸', 'COLLEGE': '대졸 이상', 'NO_ANSWER': '무응답' };
+      const map: Record<string, string> = { 
+        'ELEMENTARY': '초등학교 졸업', 
+        'MIDDLE': '중학교 졸업', 
+        'HIGH': '고등학교 졸업', 
+        'HIGHSCHOOL': '고등학교 졸업',
+        'COLLEGE': '대학교 졸업', 
+        'UNIVERSITY': '대학교 졸업',
+        'GRADUATE': '대학원 졸업',
+        'NO_ANSWER': '무응답',
+        'NONE': '무학'
+      };
       return map[level] || level;
   };
 
   const formatIncome = (income: string) => {
-      const map: Record<string, string> = { 'LESS_2M': '200만원 미만', '2_4M': '200~400만원', '4_6M': '400~600만원', 'MORE_6M': '600만원 이상', 'NO_ANSWER': '무응답' };
+      const map: Record<string, string> = { 
+        'LESS_2M': '200만원 미만', 
+        '2_4M': '200~400만원', 
+        '4_6M': '400~600만원', 
+        'MORE_6M': '600만원 이상', 
+        '6_8M': '600~800만원',
+        '8M_PLUS': '800만원 이상',
+        '8M_PULS': '800만원 이상',
+        'NO_ANSWER': '무응답' 
+      };
       return map[income] || income;
   };
 
@@ -420,8 +446,47 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   }
   
   const formatBreakfast = (freq: string) => {
-    const map: Record<string, string> = { '5_7PW': '주 5~7회', '3_4PW': '주 3~4회', '1_2PW': '주 1~2회', 'RARELY': '거의 안함' };
+    const map: Record<string, string> = { 
+        '5_7PW': '주 5~7회', 
+        '3_4PW': '주 3~4회', 
+        '1_2PW': '주 1~2회', 
+        'RARELY': '거의 안함',
+        'SELDOM': '거의 안함',
+        'NEVER': '먹지 않음',
+        'ALMOST_DAILY': '거의 매일',
+        'ALMOST_DAIL': '거의 매일'
+    };
     return map[freq] || freq;
+  };
+  
+  const formatNoExerciseReason = (reason: string | null) => {
+    if (!reason) return '';
+    const map: Record<string, string> = {
+      'NO_TIME': '시간 부족',
+      'NO_INTEREST': '흥미 없음',
+      'PHYSICAL_LIMITATION': '신체적 제한 (통증 등)',
+      'COST': '비용 부담',
+      'FACILITY_DISTANCE': '시설 거리 멈',
+      'WEATHER': '날씨/환경',
+      'LAZINESS': '게으름/귀찮음',
+      'OTHER': '기타'
+    };
+    return map[reason] || reason;
+  };
+
+  const formatPoorDietReason = (reason: string | null) => {
+    if (!reason) return '';
+    const map: Record<string, string> = {
+      'PREFERENCE': '식성/기호',
+      'HABIT': '오랜 식습관',
+      'EATING_OUT': '잦은 외식/회식',
+      'TIME_LACK': '조리 시간 부족',
+      'FINANCIAL': '경제적 이유',
+      'FAMILY': '가족 식습관',
+      'STRESS': '스트레스',
+      'OTHER': '기타'
+    };
+    return map[reason] || reason;
   };
   
   const formatSmokingLifetime = (val: string) => {
@@ -779,7 +844,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                                     <p className="text-xs text-green-600 dark:text-green-400 mt-1">운동 계획: {formatExercisePlan(survey.physical_activity.exercise_plan)}</p>
                                 )}
                                 {survey.physical_activity.no_exercise_reason && (
-                                    <p className="text-xs text-gray-500 mt-0.5">미실천 사유: {survey.physical_activity.no_exercise_reason}</p>
+                                    <p className="text-xs text-gray-500 mt-0.5">미실천 사유: {formatNoExerciseReason(survey.physical_activity.no_exercise_reason)}</p>
                                 )}
                             </div>
                         </div>
@@ -813,7 +878,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                                 {survey.diet.diet_total_score >= 8 && <span className="px-2 py-0.5 bg-gray-50 dark:bg-gray-800 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/30 rounded text-sm">양호한 식습관</span>}
                             </div>
                              {survey.diet.poor_diet_reason && (
-                                <p className="text-xs text-gray-500 mt-2">개선 어려움: {survey.diet.poor_diet_reason}</p>
+                                <p className="text-xs text-gray-500 mt-2">개선 어려움: {formatPoorDietReason(survey.diet.poor_diet_reason)}</p>
                             )}
                         </div>
                     </div>
@@ -893,16 +958,6 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                                     {survey.medication ? (survey.medication.compliant ? '양호' : '불량') : '-'}
                                 </span>
                             </div>
-                            {survey.medication && (
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 dark:text-gray-400 text-xs">정기 외래 방문</span>
-                                    <span className="text-gray-700 dark:text-gray-300 text-xs">{survey.medication.regular_visit ? '방문함' : '방문안함'}</span>
-                                </div>
-                            )}
-                            {survey.medication?.non_compliance_reason && (
-                                <p className="text-sm text-gray-500 text-right">사유: {survey.medication.non_compliance_reason}</p>
-                            )}
-                            
                             {/* Added Facility Type Info - Now using checkup.facility */}
                             <div className="flex justify-between items-center">
                                 <span className="text-gray-500 dark:text-gray-400 text-xs">이용 의료기관</span>
@@ -910,37 +965,6 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                                     <Building2 size={10} /> {checkup.facility || '기록 없음'}
                                 </span>
                             </div>
-                             
-                             {/* Added Monitoring Frequency */}
-                             <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100 dark:border-gray-700/50">
-                                <span className="text-gray-500 dark:text-gray-400">혈압 측정</span>
-                                <div className="text-right">
-                                    <span className="text-gray-900 dark:text-white block">{survey.bp_bg_monitoring.bp_awareness}</span>
-                                    <div className="flex flex-col items-end">
-                                        {survey.bp_bg_monitoring.bp_frequency && (
-                                            <span className="text-xs text-gray-500 block">({formatFrequency(survey.bp_bg_monitoring.bp_frequency)})</span>
-                                        )}
-                                        {getMonitoringCount('bp', survey.bp_bg_monitoring) && (
-                                            <span className="text-[10px] text-gray-400 block">{getMonitoringCount('bp', survey.bp_bg_monitoring)}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between items-center">
-                                <span className="text-gray-500 dark:text-gray-400">혈당 측정</span>
-                                <div className="text-right">
-                                    <span className="text-gray-900 dark:text-white block">{survey.bp_bg_monitoring.bg_awareness}</span>
-                                    <div className="flex flex-col items-end">
-                                        {survey.bp_bg_monitoring.bg_frequency && (
-                                            <span className="text-xs text-gray-500 block">({formatFrequency(survey.bp_bg_monitoring.bg_frequency)})</span>
-                                        )}
-                                         {getMonitoringCount('bg', survey.bp_bg_monitoring) && (
-                                            <span className="text-[10px] text-gray-400 block">{getMonitoringCount('bg', survey.bp_bg_monitoring)}</span>
-                                        )}
-                                    </div>
-                                </div>
-                            </div>
-
                             <div className="flex justify-between items-start pt-2 border-t border-gray-100 dark:border-gray-700/50">
                                 <div className="flex flex-col">
                                     <span className="text-gray-500 dark:text-gray-400">만성질환 교육 이수</span>
