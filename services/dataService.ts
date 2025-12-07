@@ -1,6 +1,7 @@
 
+
 import { supabase } from './supabaseClient';
-import { Client, ClientGroup, CheckupRecord, SurveyRecord } from '../types';
+import { Client, ClientGroup, CheckupRecord, SurveyRecord, SearchResult } from '../types';
 
 // --- Helper to unwrap Supabase 1:1 relation arrays ---
 const unwrap = <T>(val: T | T[] | null | undefined, defaultValue?: T): T | null => {
@@ -32,6 +33,55 @@ const calculateAge = (birthDateString: string): number => {
     age--;
   }
   return age;
+};
+
+// --- Simulated RAG Search API ---
+export const searchDocuments = async (query: string): Promise<SearchResult[]> => {
+  console.log(`Searching documents for query: ${query}`);
+  
+  // In a real implementation, this would call:
+  // const response = await fetch('/api/chat/search', { 
+  //   method: 'POST', 
+  //   body: JSON.stringify({ query, top_k: 5 }) 
+  // });
+  // return response.json().results;
+
+  // Mock delay
+  await new Promise(resolve => setTimeout(resolve, 800));
+
+  // Mock response with signed_url pointing to a real PDF for demonstration
+  const DEMO_PDF_URL = "https://raw.githubusercontent.com/mozilla/pdf.js/master/web/compressed.tracemonkey-pldi-09.pdf";
+
+  return [
+    {
+      id: 1,
+      original_name: "2024_Metabolic_Syndrome_Guidelines.pdf",
+      signed_url: DEMO_PDF_URL,
+      chunk_text: "대사증후군 관리의 첫 번째 목표는 LDL 콜레스테롤 수치를 100mg/dL 미만으로 유지하는 것입니다. 이를 위해 생활습관 교정이 필수적이며, 필요시 스타틴 계열 약물을 처방해야 합니다. 특히 당뇨병 동반 시 더욱 엄격한 관리가 요구됩니다.",
+      search_rank: 1
+    },
+    {
+      id: 2,
+      original_name: "Clinical_Nutrition_Report_Oct.pdf",
+      signed_url: DEMO_PDF_URL,
+      chunk_text: "저탄수화물 식이요법이 중성지방 감소에 미치는 영향에 대한 연구 결과, 12주간의 개입 후 평균 35mg/dL의 감소 효과가 관찰되었습니다. 이는 고지방 식이에 비해 유의미한 수치입니다.",
+      search_rank: 2
+    },
+    {
+      id: 3,
+      original_name: "Physical_Activity_Recommendations.pdf",
+      signed_url: DEMO_PDF_URL,
+      chunk_text: "주 150분 이상의 중등도 유산소 운동은 인슐린 저항성을 개선하는 데 가장 효과적인 방법 중 하나입니다. 근력 운동을 주 2회 병행할 경우 그 효과는 배가됩니다.",
+      search_rank: 3
+    },
+    {
+      id: 4,
+      original_name: "Stress_and_Cortisol.pdf",
+      signed_url: DEMO_PDF_URL,
+      chunk_text: "만성적인 스트레스는 코르티솔 수치를 높여 복부 비만을 악화시키는 주요 원인입니다. 명상과 규칙적인 수면 패턴은 대사 지표 개선에 도움을 줍니다.",
+      search_rank: 4
+    }
+  ];
 };
 
 // --- Fetch Dashboard Clients ---

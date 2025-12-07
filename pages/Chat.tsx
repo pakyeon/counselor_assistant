@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Send, Plus, MessageSquare, Menu, FileText, ArrowUpRight, 
@@ -7,13 +8,14 @@ import {
   User, Activity, Calendar, Pill, ClipboardList,
   ChevronRight, File, Settings, AlertTriangle, Cigarette, Wine, Utensils, Brain, GraduationCap, Scale,
   HeartPulse, Droplets, Ruler, Flame, Image as ImageIcon, Dna, Briefcase, Users, Wallet, CreditCard, Building2,
-  MapPin, Clock, CheckCircle2
+  MapPin, Clock, CheckCircle2, Award
 } from 'lucide-react';
-import { Client, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord, ClientGroup } from '../types';
+import { Client, ChatMessage, DocumentSource, ChatSession, CheckupRecord, SurveyRecord, ClientGroup, SearchResult } from '../types';
 import { MOCK_DOCUMENTS } from '../constants';
 import { streamChatResponse } from '../services/geminiService';
 import { getSessions, saveSession, createNewSessionId, deleteSession } from '../services/chatStorage';
-import { fetchClientDetail } from '../services/dataService';
+import { fetchClientDetail, searchDocuments } from '../services/dataService';
+import PDFViewer from '../components/PDFViewer';
 
 interface ChatProps {
   initialClient: Client | null;
@@ -27,11 +29,18 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(true);
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(window.innerWidth >= 768);
   const [activeTab, setActiveTab] = useState<'info' | 'docs'>('info');
-  const [viewingDoc, setViewingDoc] = useState<DocumentSource | null>(null);
   const [viewingClientDetail, setViewingClientDetail] = useState(false);
   const [sessions, setSessions] = useState<ChatSession[]>([]);
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   
+  // RAG Search State
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  
+  // PDF Viewer State
+  const [pdfModalOpen, setPdfModalOpen] = useState(false);
+  const [currentPdf, setCurrentPdf] = useState<{ url: string; name: string } | null>(null);
+
   // Real Data State
   const [clientDetails, setClientDetails] = useState<{checkup?: CheckupRecord, survey?: SurveyRecord}>({});
   const [detailsLoading, setDetailsLoading] = useState(false);
@@ -84,6 +93,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
         } else {
           setMessages([]);
           setCurrentSessionId(null);
+          setSearchResults([]);
         }
       }
     } 
@@ -94,10 +104,10 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   };
 
   useEffect(() => {
-    if (!viewingDoc && !viewingClientDetail) {
+    if (!viewingClientDetail) {
       scrollToBottom();
     }
-  }, [messages, viewingDoc, viewingClientDetail, previewUrl]);
+  }, [messages, viewingClientDetail, previewUrl]);
 
   // Persist current session when messages change
   useEffect(() => {
@@ -125,6 +135,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   const handleNewChat = () => {
     setMessages([]);
     setCurrentSessionId(null);
+    setSearchResults([]);
     clearImageSelection();
     if (window.innerWidth < 768) {
       setIsLeftPanelOpen(false);
@@ -137,7 +148,8 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
         setMessages(session.messages);
         setCurrentSessionId(session.id);
         setViewingClientDetail(false);
-        setViewingDoc(null);
+        // Clear previous search results on load for now, or could store them too
+        setSearchResults([]);
         clearImageSelection();
         if (window.innerWidth < 768) {
             setIsLeftPanelOpen(false);
@@ -152,6 +164,12 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
     if (currentSessionId === sessionId) {
       handleNewChat();
     }
+  };
+
+  // PDF Viewer Handling
+  const handleOpenPdf = (doc: SearchResult) => {
+    setCurrentPdf({ url: doc.signed_url, name: doc.original_name });
+    setPdfModalOpen(true);
   };
 
   // Image Helper Functions
@@ -209,14 +227,15 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
       setCurrentSessionId(activeSessionId);
     }
 
-    // Capture current file state before clearing
+    // Capture current values
+    const query = inputValue;
     const currentFile = selectedFile;
     const currentPreviewUrl = previewUrl;
 
     const userMsg: ChatMessage = {
       id: Date.now().toString(),
       role: 'user',
-      text: inputValue,
+      text: query,
       attachment: currentPreviewUrl || undefined
     };
 
@@ -226,6 +245,31 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
     setSelectedFile(null); 
     setPreviewUrl(null); 
     if (fileInputRef.current) fileInputRef.current.value = '';
+
+    // --- RAG SEARCH START ---
+    // Perform search if text exists
+    let ragContext = "";
+    if (query.trim()) {
+        setIsSearching(true);
+        // Switch to Docs tab to show search is happening or results
+        setActiveTab('docs');
+        
+        try {
+            const results = await searchDocuments(query);
+            setSearchResults(results);
+            
+            if (results.length > 0) {
+                 ragContext = `\n\n[SEARCH RESULTS / RETRIEVED DOCUMENTS]:\n${results.map(r => 
+                    `Source #${r.search_rank} (File: ${r.original_name}):\n"${r.chunk_text}"`
+                 ).join('\n\n')}`;
+            }
+        } catch (err) {
+            console.error("RAG Search failed", err);
+        } finally {
+            setIsSearching(false);
+        }
+    }
+    // --- RAG SEARCH END ---
 
     const loadingMsgId = (Date.now() + 1).toString();
     setMessages(prev => [...prev, {
@@ -249,10 +293,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
     SURVEY ANSWERS:
     ${clientDetails.survey ? JSON.stringify(clientDetails.survey) : 'No survey data.'}
 
-    AVAILABLE MEDICAL SOURCES (Reference these by ID in format [1], [2], [3]):
-    [1] ${MOCK_DOCUMENTS[0].title}: ${MOCK_DOCUMENTS[0].contentSnippet}
-    [2] ${MOCK_DOCUMENTS[1].title}: ${MOCK_DOCUMENTS[1].contentSnippet}
-    [3] ${MOCK_DOCUMENTS[2].title}: ${MOCK_DOCUMENTS[2].contentSnippet}
+    ${ragContext}
     `;
 
     // Prepare Base64 Image if exists
@@ -293,34 +334,8 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   };
 
   const renderMessageText = (text: string) => {
-    const parts = text.split(/(\[\d+\])/g);
-    
-    return parts.map((part, idx) => {
-      const match = part.match(/\[(\d+)\]/);
-      if (match) {
-        const id = parseInt(match[1]);
-        const doc = MOCK_DOCUMENTS[id - 1] || MOCK_DOCUMENTS[0];
-        
-        return (
-          <span key={idx} className="relative group inline-block ml-1 align-baseline cursor-pointer" onClick={() => setViewingDoc(doc)}>
-            <span className="bg-primary/20 text-primary text-xs font-bold px-1.5 py-0.5 rounded hover:bg-primary/30 transition-colors">
-              {id}
-            </span>
-            <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-64 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-10 pointer-events-none">
-              <div className="bg-white dark:bg-panel-dark border border-gray-200 dark:border-gray-600 rounded-lg shadow-xl p-3 text-left">
-                <p className="font-bold text-gray-900 dark:text-white text-xs mb-1 truncate">{doc.title}</p>
-                <p className="text-gray-600 dark:text-gray-400 text-xs line-clamp-3">{doc.contentSnippet}</p>
-                <div className="mt-2 text-primary text-xs flex items-center">
-                  Click to read full document <ArrowRight size={10} className="ml-1"/>
-                </div>
-              </div>
-              <div className="absolute left-1/2 -translate-x-1/2 top-full border-4 border-transparent border-t-white dark:border-t-panel-dark"></div>
-            </div>
-          </span>
-        );
-      }
-      return <span key={idx}>{part}</span>;
-    });
+    // Basic rendering, in a real app better markdown parsing needed
+    return text;
   };
 
   const isAbnormal = (val: number, type: 'waist_m' | 'waist_f' | 'bmi' | 'bp_sys' | 'bp_dia' | 'fbg' | 'tg' | 'hdl_m' | 'hdl_f' | 'ldl') => {
@@ -504,74 +519,6 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
     if (days === 0) return null;
     return `주 ${days}일, 하루 ${hours > 0 ? `${hours}시간` : ''} ${mins > 0 ? `${mins}분` : ''}`;
   };
-
-  const getMonitoringCount = (type: 'bp' | 'bg', monitor: any) => {
-      const p = type === 'bp' ? 'bp' : 'bg';
-      const w = monitor[`${p}_times_per_week`];
-      const m = monitor[`${p}_times_per_month`];
-      const m6 = monitor[`${p}_times_per_6months`];
-      
-      if (w > 0) return `주 ${w}회`;
-      if (m > 0) return `월 ${m}회`;
-      if (m6 > 0) return `6개월 ${m6}회`;
-      return '';
-  };
-
-
-  // View: Document Viewer
-  if (viewingDoc) {
-    return (
-      <div className="flex flex-col h-full bg-gray-50 dark:bg-background-dark animate-in fade-in duration-300">
-        <header className="w-full border-b border-gray-200 dark:border-gray-600 bg-white dark:bg-background-dark">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3">
-            <button 
-              onClick={() => setViewingDoc(null)}
-              className="flex cursor-pointer items-center justify-center rounded-lg bg-primary text-white gap-2 text-sm font-bold h-10 px-4 hover:bg-primary-hover transition-colors"
-            >
-              <ArrowLeft size={18} />
-              <span className="truncate hidden sm:inline">Back to Chat</span>
-            </button>
-            <div className="flex items-center gap-2">
-              <button className="p-2 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                <Search size={20} />
-              </button>
-              <button 
-                onClick={() => setViewingDoc(null)}
-                className="p-2 text-gray-500 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">
-                <X size={20} />
-              </button>
-            </div>
-          </div>
-        </header>
-        <main className="flex-1 w-full flex justify-center py-5 sm:py-10 overflow-y-auto">
-          <div className="flex w-full max-w-4xl flex-col px-6">
-            <div className="flex flex-col gap-3 pb-8 border-b border-gray-200 dark:border-gray-600">
-              <h1 className="text-3xl font-bold text-gray-900 dark:text-white leading-tight">{viewingDoc.title}</h1>
-              <p className="text-gray-500 dark:text-gray-400">Medical Guideline Reference • ID: {viewingDoc.id}</p>
-            </div>
-            <div className="grid grid-cols-2 gap-x-6 py-6 border-b border-gray-200 dark:border-gray-600">
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Source Type</p>
-                <p className="font-medium text-gray-900 dark:text-white uppercase">{viewingDoc.type}</p>
-              </div>
-              <div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Date Indexed</p>
-                <p className="font-medium text-gray-900 dark:text-white">Oct 26, 2023</p>
-              </div>
-            </div>
-            <div className="prose prose-gray dark:prose-invert max-w-none pt-8">
-              <p className="text-lg leading-relaxed text-gray-800 dark:text-gray-300">
-                <span className="bg-primary/20 rounded px-1 text-primary dark:text-indigo-400">{viewingDoc.contentSnippet}</span>
-              </p>
-              <p className="mt-4 text-gray-600 dark:text-gray-400 leading-relaxed">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-              </p>
-            </div>
-          </div>
-        </main>
-      </div>
-    );
-  }
 
   // View: Client Integrated Data View
   if (viewingClientDetail && selectedClient) {
@@ -1015,6 +962,14 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
   // View: Main Chat
   return (
     <div className="flex h-full w-full overflow-hidden">
+       {/* PDF Viewer Modal */}
+      <PDFViewer 
+        isOpen={pdfModalOpen} 
+        onClose={() => setPdfModalOpen(false)} 
+        signedUrl={currentPdf?.url || ''} 
+        originalName={currentPdf?.name || ''} 
+      />
+
       {/* Left Sidebar - Chat History - Increased width to w-80 */}
       <aside 
         className={`${isLeftPanelOpen ? 'w-80 translate-x-0' : 'w-0 -translate-x-full opacity-0 md:opacity-100 md:w-0'} 
@@ -1104,7 +1059,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
               </div>
               <h3 className="text-xl font-medium text-gray-900 dark:text-white mb-2">대화를 시작해주세요</h3>
               <p className="text-gray-500 dark:text-gray-400 max-w-sm">
-                "{selectedClient?.name}" 님의 건강 상태나 <br />최근 방문 기록에 대해 물어보세요.
+                "{selectedClient?.name}" 님의 건강 상태나 <br />최근 방문 기록에 대해 물어보세요
               </p>
             </div>
           ) : (
@@ -1199,7 +1154,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
             />
             <button 
               onClick={handleSendMessage}
-              disabled={!inputValue.trim() && !selectedFile}
+              disabled={(!inputValue.trim() && !selectedFile) || isSearching}
               className="p-2 bg-primary text-white rounded-lg hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg"
             >
               <Send size={18} />
@@ -1232,7 +1187,7 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-4">
+          <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
             {activeTab === 'info' ? (
               <div className="space-y-4 flex flex-col h-full">
                 {(() => {
@@ -1434,27 +1389,54 @@ const Chat: React.FC<ChatProps> = ({ initialClient, onBackToDashboard }) => {
                 </div>
               </div>
             ) : (
-              <div className="space-y-3">
-                <p className="text-xs text-gray-500 mb-2">내담자와 관련된 참고 문서</p>
-                {MOCK_DOCUMENTS.map((doc, idx) => (
-                  <div 
-                    key={doc.id} 
-                    onClick={() => setViewingDoc(doc)}
-                    className="p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-primary cursor-pointer group transition-all"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                         <div className="bg-primary/20 p-1.5 rounded text-primary dark:text-indigo-400">
-                            <FileText size={16} />
-                         </div>
-                         <span className="text-xs bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded">ID: {idx + 1}</span>
+              // --- DOCUMENTS TAB (Updated for RAG Search Results) ---
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                   <p className="text-xs text-gray-500 uppercase font-bold tracking-wider">검색된 문서 (Reference)</p>
+                   {isSearching && <span className="text-xs text-primary animate-pulse">검색 중...</span>}
+                </div>
+                
+                {searchResults.length > 0 ? (
+                  searchResults.map((doc) => (
+                    <div 
+                      key={doc.id} 
+                      onClick={() => handleOpenPdf(doc)}
+                      className="group relative flex flex-col gap-2 p-3 bg-gray-50 dark:bg-gray-800/50 rounded-xl border border-gray-200 dark:border-gray-600 hover:border-primary dark:hover:border-primary/70 hover:shadow-md cursor-pointer transition-all duration-200"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center gap-2 max-w-[85%]">
+                           {/* Rank Badge */}
+                           <div className="flex-shrink-0 w-6 h-6 rounded bg-primary text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                              #{doc.search_rank}
+                           </div>
+                           <h4 className="text-sm font-semibold text-gray-900 dark:text-white truncate group-hover:text-primary transition-colors" title={doc.original_name}>
+                             {doc.original_name}
+                           </h4>
+                        </div>
+                        <ArrowUpRight size={14} className="text-gray-400 group-hover:text-primary dark:group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" />
                       </div>
-                      <ArrowUpRight size={14} className="text-gray-400 group-hover:text-primary dark:group-hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all" />
+                      
+                      <div className="bg-white dark:bg-gray-900/50 p-2 rounded-lg border border-gray-100 dark:border-gray-700/50">
+                        <p className="text-xs text-gray-600 dark:text-gray-400 line-clamp-3 leading-relaxed">
+                          {doc.chunk_text}
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-[10px] bg-gray-200 dark:bg-gray-700 text-gray-600 dark:text-gray-300 px-1.5 py-0.5 rounded flex items-center gap-1">
+                          <FileText size={10} /> PDF
+                        </span>
+                      </div>
                     </div>
-                    <h4 className="text-sm font-medium text-gray-900 dark:text-white mb-1 group-hover:text-primary dark:group-hover:text-indigo-400 transition-colors line-clamp-1">{doc.title}</h4>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 line-clamp-2">{doc.contentSnippet}</p>
+                  ))
+                ) : (
+                  <div className="text-center py-10 px-4 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl">
+                    <Search size={24} className="mx-auto mb-2 text-gray-300 dark:text-gray-600"/>
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      {isSearching ? '문서를 검색하고 있습니다...' : '질문을 입력하면 관련 문서를 검색합니다.'}
+                    </p>
                   </div>
-                ))}
+                )}
               </div>
             )}
           </div>

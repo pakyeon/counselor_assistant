@@ -1,4 +1,5 @@
 
+
 export enum ClientGroup {
   METABOLIC = '대사증후군', // MS
   NORMAL = '정상군', // NORMAL
@@ -58,6 +59,14 @@ export interface DocumentSource {
   title: string;
   type: 'pdf' | 'doc';
   contentSnippet: string;
+}
+
+export interface SearchResult {
+  id: number;
+  original_name: string;
+  signed_url: string;
+  chunk_text: string;
+  search_rank: number;
 }
 
 export enum AppView {
